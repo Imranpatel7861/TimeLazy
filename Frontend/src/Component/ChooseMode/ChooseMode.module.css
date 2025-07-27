@@ -1,0 +1,215 @@
+.chooseMode {
+  max-width:2500px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.chooseMode h2 {
+  font-size: 2.8rem;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 60px;
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  padding: 40px 30px;
+  flex: 1 1 300px;
+  max-width: 350px;
+  min-width: 280px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  transition: all 0.3s ease;
+}
+
+.card:nth-child(1):before {
+  background: linear-gradient(90deg, #059669 0%, #41ff9d 100%);
+}
+
+.card:nth-child(2):before {
+  background: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+}
+
+.card:nth-child(3):before {
+  background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+}
+
+.card:hover {
+  transform: translateY(-15px) scale(1.03);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.card:hover:before {
+  height: 8px;
+}
+
+.cardIcon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  display: inline-block;
+  transition: transform 0.5s ease;
+}
+
+.card h3 {
+  font-size: 1.6rem;
+  margin-bottom: 15px;
+  color: #222;
+}
+
+.card p {
+  color: #555;
+  font-size: 1rem;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.card ul {
+  text-align: left;
+  margin-bottom: 30px;
+  padding-left: 5px;
+  list-style-type: none;
+}
+
+.card ul li {
+  margin-bottom: 12px;
+  color: #444;
+  position: relative;
+  padding-left: 28px;
+  transition: all 0.3s;
+}
+
+.card ul li:before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #28a745;
+  font-weight: bold;
+}
+
+.card ul li:hover {
+  transform: translateX(5px);
+  color: #333;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 30px;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+
+.btn:before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  transition: all 0.3s;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+.btn:hover {
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover:before {
+  width: 100%;
+}
+
+.btn.personal {
+  background: linear-gradient(90deg, #059669 0%, #10B981 100%);
+}
+
+.btn.personal:before {
+  background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+}
+
+.btn.team {
+  background: linear-gradient(90deg, #4776E6 0%, #8E54E9 100%);
+}
+
+.btn.team:before {
+  background: linear-gradient(90deg, #8E54E9 0%, #4776E6 100%);
+}
+
+.btn.org {
+  background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+}
+
+.btn.org:before {
+  background: linear-gradient(90deg, #0072ff 0%, #00c6ff 100%);
+}
+
+@media (max-width: 1024px) {
+  .cards {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .chooseMode h2 {
+    font-size: 2rem;
+  }
+
+  .card {
+    padding: 30px 20px;
+  }
+}

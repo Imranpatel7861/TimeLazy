@@ -1,0 +1,27 @@
+/* ChatbotButton.module.css */
+
+.chatbotButton {
+  position: fixed;
+  bottom: 100px;
+  right: 33px;
+  width: 50px;
+  height: 50px;
+  background-color: #4a6cf7;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(74, 108, 247, 0.4);
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+.chatbotButton:hover {
+  transform: scale(1.1);
+}
+
+.chatbotButton i {
+  font-size: 24px;
+}
