@@ -1,8 +1,38 @@
+/* ChooseMode.module.css */
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --card-bg: #fff;
+  --card-text: #222;
+  --subtitle-color: #666;
+  --border-color: rgba(0, 0, 0, 0.05);
+  --hover-shadow: rgba(0, 0, 0, 0.15);
+  --list-color: #444;
+  --list-hover-color: #333;
+  --checkmark-color: #28a745;
+}
+
+[data-theme='dark'] {
+  --bg-color: #121212;
+  --text-color: #ffffff;
+  --card-bg: #1e1e1e;
+  --card-text: #e0e0e0;
+  --subtitle-color: #bbbbbb;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --hover-shadow: rgba(255, 255, 255, 0.2);
+  --list-color: #cccccc;
+  --list-hover-color: #ffffff;
+  --checkmark-color: #34d399;
+}
+
 .chooseMode {
-  max-width:2500px;
+  max-width: 2500px;
   margin: 0 auto;
   text-align: center;
   padding: 40px 20px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 .chooseMode h2 {
@@ -15,7 +45,7 @@
 }
 
 .subtitle {
-  color: #666;
+  color: var(--subtitle-color);
   margin-bottom: 60px;
   font-size: 1.2rem;
   max-width: 700px;
@@ -32,7 +62,7 @@
 }
 
 .card {
-  background-color: #fff;
+  background-color: var(--card-bg);
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   padding: 40px 30px;
@@ -42,10 +72,11 @@
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  color: var(--card-text);
 }
 
 .card:before {
@@ -72,7 +103,7 @@
 
 .card:hover {
   transform: translateY(-15px) scale(1.03);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 40px var(--hover-shadow);
 }
 
 .card:hover:before {
@@ -89,11 +120,11 @@
 .card h3 {
   font-size: 1.6rem;
   margin-bottom: 15px;
-  color: #222;
+  color: var(--card-text);
 }
 
 .card p {
-  color: #555;
+  color: var(--card-text);
   font-size: 1rem;
   margin-bottom: 25px;
   line-height: 1.6;
@@ -108,7 +139,7 @@
 
 .card ul li {
   margin-bottom: 12px;
-  color: #444;
+  color: var(--list-color);
   position: relative;
   padding-left: 28px;
   transition: all 0.3s;
@@ -118,13 +149,13 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: #28a745;
+  color: var(--checkmark-color);
   font-weight: bold;
 }
 
 .card ul li:hover {
   transform: translateX(5px);
-  color: #333;
+  color: var(--list-hover-color);
 }
 
 .btn {

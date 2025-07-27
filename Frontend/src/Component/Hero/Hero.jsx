@@ -1,11 +1,13 @@
+
 import React from 'react';
 import styles from './hero.module.css';
 
 const Hero = () => {
-  const scrollToSection = (id) => {
+  const scrollToSection = (id, offset = 0) => {
     const section = document.getElementById(id);
     if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
+      const y = section.getBoundingClientRect().top + window.pageYOffset + offset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
@@ -33,7 +35,7 @@ const Hero = () => {
           <div className={styles.ctaGroup}>
             <button
               className={styles.primaryBtn}
-              onClick={() => scrollToSection('organizeSection')}
+              onClick={() => scrollToSection('ChooseMode', -50)} // Adjust offset if needed
             >
               <span>Start Organizing</span>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -43,7 +45,7 @@ const Hero = () => {
 
             <button
               className={styles.secondaryBtn}
-              onClick={() => scrollToSection('demoSection')}
+              onClick={() => scrollToSection('TimetableDemo', -20)} // Adjust offset if needed
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <polygon fill="currentColor" points="9.5,7.5 9.5,16.5 16.5,12"/>

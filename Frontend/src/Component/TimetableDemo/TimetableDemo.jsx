@@ -143,7 +143,8 @@ const TimetableDemo = () => {
   };
 
   return (
-    <section className={`${styles.timetablePreview} ${styles.animate__animated} ${styles.animate__fadeIn} ${styles[`theme${theme.charAt(0).toUpperCase() + theme.slice(1)}`]}`}>
+  
+    <section id="TimetableDemo" className={`${styles.timetablePreview} ${styles.animate__animated} ${styles.animate__fadeIn} ${styles[`theme${theme.charAt(0).toUpperCase() + theme.slice(1)}`]}`}>
       <h2 className={`${styles.animate__animated} ${styles.animate__bounceIn}`}>DEMO TimeTable by TimeLazy</h2>
 
       <div className={`${styles.themeControls} ${styles.animate__animated} ${styles.animate__fadeInUp}`}>

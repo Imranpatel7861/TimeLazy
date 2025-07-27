@@ -1,9 +1,11 @@
 import React from 'react';
 import styles from './ChooseMode.module.css';
 
+
 const ChooseMode = () => {
   return (
-    <section className={styles.chooseMode}>
+      <section id="ChooseMode" className={styles.chooseMode}>
+
       <h2 data-aos="fade-up">Choose Your Mode</h2>
       <p className={styles.subtitle} data-aos="fade-up" data-aos-delay="100">
         Whether you're planning for yourself, your team, or a whole organization—we've got you covered.
@@ -22,7 +24,7 @@ const ChooseMode = () => {
             <li>Progress tracking</li>
             <li>Smart reminders</li>
           </ul>
-          <a href="#" className={`${styles.btn} ${styles.personal}`}>Start for Free</a>
+          <a href="/LoginPer" className={`${styles.btn} ${styles.personal}`}>Start for Free</a>
         </div>
 
         {/* Team Card */}
@@ -52,10 +54,11 @@ const ChooseMode = () => {
             <li>Custom reporting</li>
             <li>API integration</li>
           </ul>
-          <a href="#" className={`${styles.btn} ${styles.org}`}>Request Demo</a>
+          <a href="/Loginad" className={`${styles.btn} ${styles.org}`}>Request Demo</a>
         </div>
       </div>
     </section>
+    
   );
 };
 

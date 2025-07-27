@@ -1,0 +1,16 @@
+:root {
+  --background: #ffffff;
+  --text-color: #1a1a1a;
+  --card-bg: #f9f9f9;
+  --card-text: #222222;
+}
+
+[data-theme='dark'] {
+  --background: #121212;
+  --text-color: #f0f0f0;
+  --card-bg: #1e1e1e;
+  --card-text: #eeeeee;
+}
+html {
+  scroll-behavior: smooth;
+}

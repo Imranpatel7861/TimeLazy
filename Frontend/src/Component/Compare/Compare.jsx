@@ -1,7 +1,11 @@
+
 import React, { useEffect } from 'react';
 import styles from './Compare.module.css';
+import { useTheme } from '../Theme/ThemeContext';
 
 const Compare = () => {
+  const { theme } = useTheme();
+
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -16,7 +20,6 @@ const Compare = () => {
       observer.observe(container);
     }
 
-    // Animate progress bars when hovered
     const cells = document.querySelectorAll(`.${styles.aiCell}, .${styles.manualCell}`);
     cells.forEach(cell => {
       cell.addEventListener('mouseenter', () => {
@@ -37,7 +40,10 @@ const Compare = () => {
   }, []);
 
   return (
-    <div className={styles.comparisonContainer} id="comparison-container">
+    <div
+      className={`${styles.comparisonContainer} ${theme === 'dark' ? styles.dark : ''}`}
+      id="comparison-container"
+    >
       <div className={styles.comparisonHeader}>
         <h2>AI vs Manual Timetable Creation</h2>
         <p>Discover why TimeLazy's AI outperforms traditional methods</p>
@@ -47,42 +53,43 @@ const Compare = () => {
         <thead>
           <tr>
             <th>Feature</th>
-            <th><span className={styles.aiBadge} id="timelazy-badge">TimeLazy AI</span></th>
+            <th><span className={styles.aiBadge}>TimeLazy AI</span></th>
             <th><span className={styles.manualBadge}>Manual Tools</span></th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td className={styles.featureCell}>Speed</td>
-            <td className={styles.aiCell}>
-              <div className={styles.cellContent}>
-                <i className="fas fa-bolt icon"></i><br />
-                <span className={`${styles.highlight} ${styles.bestFeature}`}>30 seconds</span>
-                <div className={styles.progressContainer}>
-                  <div className={styles.progressBar} data-value="95"></div>
-                </div>
-              </div>
-            </td>
-            <td className={styles.manualCell}>
-              <div className={styles.cellContent}>
+        
+          <tbody>
+         <tr>
+        <td className={styles.featureCell}>Speed</td>
+             <td className={styles.aiCell}>
+               <div className={styles.cellContent}>
+                 <i className="fas fa-bolt icon"></i><br />
+                 <span className={`${styles.highlight} ${styles.bestFeature}`}>30 seconds</span>
+                 <div className={styles.progressContainer}>
+                   <div className={styles.progressBar} data-value="95"></div>
+                 </div>
+               </div>
+             </td>
+             <td className={styles.manualCell}>
+               <div className={styles.cellContent}>
                 <i className="fas fa-hourglass-half icon"></i><br />
-                1+ hour
-                <div className={styles.progressContainer}>
-                  <div className={styles.progressBar} data-value="20"></div>
-                </div>
-              </div>
-            </td>
-          </tr>
-          <tr>
+                 1+ hour
+                 <div className={styles.progressContainer}>
+                   <div className={styles.progressBar} data-value="20"></div>
+                 </div>
+               </div>
+             </td>
+           </tr>
+           <tr>
             <td className={styles.featureCell}>Conflict Detection</td>
             <td className={styles.aiCell}>
               <div className={styles.cellContent}>
-                <i className="fas fa-check-circle icon"></i><br />
-                <span className={`${styles.highlight} ${styles.bestFeature}`}>Auto-fixed</span>
+                 <i className="fas fa-check-circle icon"></i><br />
+                 <span className={`${styles.highlight} ${styles.bestFeature}`}>Auto-fixed</span>
                 <div className={styles.progressContainer}>
                   <div className={styles.progressBar} data-value="90"></div>
-                </div>
-              </div>
+                 </div>
+               </div>
             </td>
             <td className={styles.manualCell}>
               <div className={styles.cellContent}>
@@ -109,55 +116,55 @@ const Compare = () => {
               <div className={styles.cellContent}>
                 <i className="fas fa-dice icon"></i><br />
                 Guesswork
-                <div className={styles.progressContainer}>
-                  <div className={styles.progressBar} data-value="40"></div>
-                </div>
-              </div>
+                 <div className={styles.progressContainer}>
+                   <div className={styles.progressBar} data-value="40"></div>
+                 </div>
+               </div>
             </td>
-          </tr>
+           </tr>
           <tr>
             <td className={styles.featureCell}>Personalization</td>
             <td className={styles.aiCell}>
               <div className={styles.cellContent}>
                 <i className="fas fa-user-cog icon"></i><br />
-                <span className={`${styles.highlight} ${styles.bestFeature}`}>Energy & focus-based</span>
+                 <span className={`${styles.highlight} ${styles.bestFeature}`}>Energy & focus-based</span>
                 <div className={styles.progressContainer}>
-                  <div className={styles.progressBar} data-value="85"></div>
-                </div>
-              </div>
-            </td>
-            <td className={styles.manualCell}>
-              <div className={styles.cellContent}>
-                <i className="fas fa-user icon"></i><br />
-                Basic preferences
-                <div className={styles.progressContainer}>
+                   <div className={styles.progressBar} data-value="85"></div>
+                 </div>
+               </div>
+             </td>
+             <td className={styles.manualCell}>
+               <div className={styles.cellContent}>
+               <i className="fas fa-user icon"></i><br />
+                 Basic preferences
+                 <div className={styles.progressContainer}>
                   <div className={styles.progressBar} data-value="50"></div>
+                 </div>
+              </div>
+           </td>
+           </tr>
+           <tr>
+             <td className={styles.featureCell}>Updates</td>
+             <td className={styles.aiCell}>
+               <div className={styles.cellContent}>
+                 <i className="fas fa-sync-alt icon"></i><br />
+                 <span className={styles.highlight}>Instant adjustments</span>
+                 <div className={styles.progressContainer}>
+                   <div className={styles.progressBar} data-value="95"></div>
                 </div>
               </div>
             </td>
-          </tr>
-          <tr>
-            <td className={styles.featureCell}>Updates</td>
-            <td className={styles.aiCell}>
-              <div className={styles.cellContent}>
-                <i className="fas fa-sync-alt icon"></i><br />
-                <span className={styles.highlight}>Instant adjustments</span>
-                <div className={styles.progressContainer}>
-                  <div className={styles.progressBar} data-value="95"></div>
-                </div>
-              </div>
-            </td>
-            <td className={styles.manualCell}>
-              <div className={styles.cellContent}>
-                <i className="fas fa-eraser icon"></i><br />
+           <td className={styles.manualCell}>
+               <div className={styles.cellContent}>
+                 <i className="fas fa-eraser icon"></i><br />
                 Start from scratch
                 <div className={styles.progressContainer}>
-                  <div className={styles.progressBar} data-value="25"></div>
+                   <div className={styles.progressBar} data-value="25"></div>
                 </div>
               </div>
-            </td>
+             </td>
           </tr>
-        </tbody>
+                </tbody>
       </table>
     </div>
   );
