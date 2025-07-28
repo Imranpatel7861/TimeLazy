@@ -80,7 +80,7 @@ const TimetableDemo = () => {
     const facultyList = document.getElementById('facultyList');
     facultyList.innerHTML = '';
     for (let i = 0; i < 9; i++) {
-      const randomIndex = Math.floor(Math.random() * facultyNames.length);
+      const randomIndex = HCI.floor(HCI.random() * facultyNames.length);
       const facultyOption = document.createElement('div');
       facultyOption.className = styles.facultyOption;
       facultyOption.textContent = facultyNames[randomIndex];
@@ -118,24 +118,24 @@ const TimetableDemo = () => {
   };
 
   const times = [
-    "9:00 - 10:00",
-    "10:00 - 11:00",
-    "11:00 - 12:00",
-    "12:00 - 1:00"
+    "9:40 - 10:30",
+    "10:30 - 11:20",
+    "11:20 - 12:10",
+    "12:10 - 1:00"
   ];
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
   const sampleData = {
-    "9:00 - 10:00": ["Math", "Physics", "Chemistry", "Biology", "Math"],
-    "10:00 - 11:00": ["English", "Math", "Physics Lab", "History", "Geography"],
-    "11:00 - 12:00": ["Break", "Break", "Break", "Break", "Break"],
-    "12:00 - 1:00": ["Computer Science", "Chemistry Lab", "Math", "English", "Art"]
+    "9:40 - 10:30": ["HCI", "DBMS", "SPOS", "CNS", "HCI"],
+    "10:30 - 11:20": ["OOP", "HCI", "DBMS Lab", "CNS", "TOC"],
+    "11:20 - 12:10": ["Break", "Break", "Break", "Break", "Break"],
+    "12:10 - 1:00": ["OOP", "SPOS Lab", "HCI", "SPOS", "TOC"]
   };
 
   const sampleRooms = [
-    "Room 101", "Room 203", "Room 305", "Room 402", "Room 204",
-    "Lab 1", "Room 205", "Room 301", "Cafeteria", "Lab 3", "Lab 2", "Art Studio"
+    "Room 503", "Room 504", "Room 505", "Room 506", "Room 518",
+    "Lab 525", "Room 526", "Room 512", "Cafeteria", "Lab 513", "Lab 625", "Lab 624"
   ];
 
   const generateFaculty = (subject) => {

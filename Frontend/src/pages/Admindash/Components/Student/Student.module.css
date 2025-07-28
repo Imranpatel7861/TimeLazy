@@ -1,0 +1,123 @@
+.container {
+  padding: 2rem;
+  max-width: 1000px;
+  
+  margin: 0 auto;
+  background-color: #f9fafb;
+  font-family: 'Poppins', sans-serif;
+
+}
+
+.accordion {
+
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  
+}
+
+.accordionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.accordionHeader:hover {
+  background-color:#10b981;
+  color: #fff;
+}
+
+.deptTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.yearContainer {
+  padding: 1rem 5rem 2rem;
+}
+
+.yearBlock {
+  margin-top: 1rem;
+  border-left: 3px solid #10b981;
+  padding-left: 1rem;
+}
+
+.yearHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  gap: 0.8rem;
+}
+
+.yearHeader:hover {
+  background: #f1f5f9;
+}
+
+.yearLabel {
+  flex-grow: 1;
+}
+
+.divisionList {
+  padding: 0.75rem 1.25rem;
+}
+
+.divisionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  margin: 0.75rem 0;
+  padding: 1rem;
+  border-left: 5px solid #facc15;
+  border-radius: 10px;
+  border: 1px solid #f3f4f6;
+}
+
+.divisionLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.pdfBtn {
+  background: #facc15;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.pdfBtn:hover {
+  background: #eab308;
+}
+
+.arrow {
+  font-size: 1.2rem;
+}

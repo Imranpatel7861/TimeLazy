@@ -1,0 +1,214 @@
+.teachersContainer {
+  padding: 0.5rem;
+  background: #f9fafb;
+  border-radius: 1rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+
+.uploadBtn {
+  height: 70px;
+  width: 200px;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-weight: 600;
+  font-size: large;
+  transition: background 0.3s ease;
+  
+  margin-top: 10px;
+}
+
+.addBtn {
+  height: 70px;
+  width: 200px;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-weight: 600;
+  font-size: large;
+  transition: background 0.3s ease;
+  
+}
+.addBtn {
+  background: #3b82f6;
+  margin-left: 10px;
+}
+
+.uploadBtn {
+  background: #14b8a6;
+}
+
+.addBtn:hover {
+  background: #2563eb;
+}
+
+.uploadBtn:hover {
+  background: #10b981;
+}
+
+.formContainer {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 3.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formContainer h3 {
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.formContainer input {
+  width: 300px;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.formActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.submitBtn {
+  width: 150px;
+  height: 50px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.teachersList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  justify-content: center;
+}
+
+.teacherCard {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 160px;
+  width: 100%;
+}
+
+.teacherInfo {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.avatar {
+  background: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  width: 4.5rem;
+  height: 4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.teacherDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.teacherName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.teacherSubject {
+  font-size: 1.05rem;
+  color: #6b7280;
+}
+
+.teacherEmail {
+  font-size: 1rem;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.editBtn,
+.deleteBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editBtn {
+  color: #3b82f6;
+}
+
+.deleteBtn {
+  color: #ef4444;
+}
+
+.editBtn:hover,
+.deleteBtn:hover {
+  background: rgba(59, 130, 246, 0.1);
+}

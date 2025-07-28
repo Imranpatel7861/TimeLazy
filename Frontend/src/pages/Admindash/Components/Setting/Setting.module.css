@@ -1,0 +1,126 @@
+.settingsWrapper {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: auto;
+  font-family: 'Poppins', sans-serif;
+}
+
+.profileHeader {
+    margin-top: -33px;
+  background: white;
+  padding: 2.5rem 2.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 12px;
+  background-color: #f3f4f6;
+  object-fit: cover;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin: 0;
+  color: #111827;
+}
+
+.subheading {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.formCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.75rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1.0rem;
+}
+
+.inputGroup {
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup label {
+  font-weight: 800;
+  margin-top: 1.5rem;
+  color: #374151;
+}
+
+.inputGroup input,
+.inputGroup select {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  background-color: #f9fafb;
+}
+
+.inputGroup input:focus,
+.inputGroup select:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: white;
+}
+
+.buttonRow {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.saveBtn {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.saveBtn:hover {
+  background: #6d28d9;
+}
+
+.passwordBtn {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #111827;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.passwordBtn:hover {
+  background: #f3f4f6;
+}
