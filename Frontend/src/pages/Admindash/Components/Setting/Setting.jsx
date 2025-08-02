@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import styles from './Setting.module.css';
+import ForgotPassword from '../../../ForgotPassword';
+
 
 const Setting = () => {
   const [formData, setFormData] = useState({
@@ -10,25 +14,58 @@ const Setting = () => {
     phone: '',
     address: '',
     profilePic: null,
-    profilePicURL: 'https://via.placeholder.com/100'
+    profilePicURL: 'https://via.placeholder.com/100',
   });
 
+  const navigate = useNavigate();
+
+  const handleChangePasswordClick = () => {
+    navigate('/ForgotPassword');
+  }
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (name === 'profilePic' || name === 'profilePhoto') {
+    if (name === 'profilePhoto') {
       const file = files[0];
       if (file) {
         const url = URL.createObjectURL(file);
-        setFormData((prev) => ({ ...prev, profilePic: file, profilePicURL: url }));
+        setFormData((prev) => ({
+          ...prev,
+          profilePic: file,
+          profilePicURL: url,
+        }));
       }
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Changes saved!');
+    const payload = new FormData();
+    payload.append('name', formData.name);
+    payload.append('email', formData.email);
+    payload.append('gender', formData.gender);
+    payload.append('organization', formData.organization);
+    payload.append('phone', formData.phone);
+    payload.append('address', formData.address);
+    if (formData.profilePic) {
+      payload.append('profilePic', formData.profilePic);
+    }
+
+    try {
+      await axios.post('http://localhost:5000/api/profile', payload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      alert('Changes saved!');
+    } catch (err) {
+      console.error('Profile update failed:', err);
+      alert('Failed to save changes.');
+    }
   };
 
   return (
@@ -69,6 +106,7 @@ const Setting = () => {
             onChange={handleChange}
             placeholder="Full Name"
             className={styles.input}
+            required
           />
         </div>
 
@@ -81,6 +119,7 @@ const Setting = () => {
             onChange={handleChange}
             placeholder="Email ID"
             className={styles.input}
+            required
           />
         </div>
 
@@ -108,10 +147,25 @@ const Setting = () => {
           />
         </div>
 
-        
+       {/* <div className={styles.inputGroup}>
+          <label>Address</label>
+          <textarea
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="Enter address"
+            className={styles.input}
+            rows={3}
+          />
+        </div> */}
+
         <div className={styles.buttonRow}>
-          <button type="submit" className={styles.saveBtn}>Save Changes</button>
-          <button type="button" className={styles.passwordBtn}>Change Password</button>
+          <button type="submit" className={styles.saveBtn}>
+            Save Changes
+          </button>
+           <button type="button" className={styles.passwordBtn} onClick={handleChangePasswordClick}>
+      Change Password
+    </button>
         </div>
       </form>
     </div>
@@ -119,3 +173,4 @@ const Setting = () => {
 };
 
 export default Setting;
+ 

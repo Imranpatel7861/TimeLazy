@@ -4,13 +4,6 @@
   --card-bg: #f9f9f9;
   --card-text: #222222;
   font-family: 'Poppins', sans-serif;
-  
-}
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
 }
 
 [data-theme='dark'] {
@@ -19,6 +12,31 @@
   --card-bg: #1e1e1e;
   --card-text: #eeeeee;
 }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
 html {
   scroll-behavior: smooth;
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-color);
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
+}
+
+#root {
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
 }

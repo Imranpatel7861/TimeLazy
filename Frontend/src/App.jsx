@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import Dashboard from './pages/Dashboard';
 import About from './pages/About';
 import Contact from './pages/ContactUs';
@@ -11,9 +13,8 @@ import Loginad from './pages/Loginad';
 import Signupad from './pages/Signupad';
 import SignupPer from './pages/SignupPer';
 import Admindash from './pages/Admindash/Admindash';
-
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   useEffect(() => {
@@ -38,6 +39,8 @@ function App() {
         <Route path="/Signupad" element={<Signupad />} />
         <Route path="/SignupPer" element={<SignupPer />} />
         <Route path="/admindash" element={<Admindash />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword/>}/>
+        <Route path="/resetpassword" element={<ResetPassword/>}/>
       </Routes>
     </BrowserRouter>
   );

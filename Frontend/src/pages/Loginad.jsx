@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ⬅️ Add this
+import { useNavigate } from 'react-router-dom';
 import styles from '../css/loginad.module.css';
-
+import ForgotPassword from './ForgotPassword';
 const Loginad = () => {
-  const navigate = useNavigate(); // ⬅️ Initialize navigate
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -53,17 +53,30 @@ const Loginad = () => {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
 
-      console.log('Login successful:', formData);
+      const data = await response.json();
+      console.log("🔁 Server Response:", response.status, data);
 
-      // Navigate to admin dashboard after login
-      navigate('/admindash');
+      if (response.status === 200 && data.message === "Login successful") {
+        console.log("✅ Login success:", data);
+        navigate('/admindash');
+      } else {
+        setErrors({ submit: data.message || "Login failed" });
+      }
 
-      setFormData({ email: '', password: '', rememberMe: false });
     } catch (error) {
-      setErrors({ submit: 'Login failed. Please check your credentials.' });
+      console.error("❌ Server error:", error);
+      setErrors({ submit: "Server error. Please try again later." });
     } finally {
       setIsLoading(false);
     }
@@ -72,11 +85,13 @@ const Loginad = () => {
   return (
     <div className={styles.container}>
       <div className={styles.loginCard}>
-        <button className={styles.backButton} onClick={() => window.history.back()}>
+        <button className={styles.backButton} onClick={() => navigate('/landing')}>
+
           <svg viewBox="0 0 24 24" fill="none">
             <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
+
         <div className={styles.header}>
           <h1 className={styles.title}>Admin Login</h1>
           <p className={styles.subtitle}>Access your organization dashboard</p>
@@ -138,7 +153,7 @@ const Loginad = () => {
               <span className={styles.checkmark}></span>
               Remember me
             </label>
-            <a href="#" className={styles.forgotPassword}>Forgot Password?</a>
+            <a href="/ForgotPassword" className={styles.forgotPassword}>Forgot Password?</a>
           </div>
 
           {errors.submit && (

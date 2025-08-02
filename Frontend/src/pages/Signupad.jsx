@@ -44,12 +44,34 @@ const Signupad = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:5000/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: `${formData.adminFirstName} ${formData.adminLastName}`,
+          email: formData.email,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.status === 201) {
+        console.log("✅ Signup successful:", data);
+        setSignupSuccess(true);
+      } else {
+        console.log("❌ Signup failed:", data);
+        alert(data.message || "Signup failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("❌ Error:", error);
+      alert("Server error. Please try again later.");
+    } finally {
       setIsLoading(false);
-      console.log('Signup attempted with:', formData);
-      setSignupSuccess(true);
-    }, 2000);
+    }
   };
 
   const handleBackToForm = () => {
@@ -68,7 +90,7 @@ const Signupad = () => {
   };
 
   const handleBackToLanding = () => {
-    navigate('/Landing'); // Replace '/landing' with the actual path to your landing page
+    navigate('/admindash');
   };
 
   return (

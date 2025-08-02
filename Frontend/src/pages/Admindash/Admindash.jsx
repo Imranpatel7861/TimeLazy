@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// Admindash.jsx
+import React, { useState, useEffect } from 'react';
 import {
   Calendar,
   Users,
@@ -14,7 +15,6 @@ import {
 import styles from './Admindash.module.css';
 
 import Overview from './Components/Overview/Overview';
-// import Timetable from './Components/Timetable/Timetable';
 import Teacher from './Components/Teacher/Teacher';
 import Student from './Components/Student/Student';
 import Setting from './Components/Setting/Setting';
@@ -27,6 +27,19 @@ const Admindash = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState(3);
   const [searchQuery, setSearchQuery] = useState('');
+  const [profile, setProfile] = useState({ name: 'Admin', email: '', image: null });
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/profile')
+      .then(res => res.json())
+      .then(data => {
+        setProfile({
+          name: data.name || 'Admin',
+          email: data.email,
+          image: data.profile_pic ? `http://localhost:5000/uploads/${data.profile_pic}` : null
+        });
+      });
+  }, []);
 
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: Calendar },
@@ -44,7 +57,7 @@ const Admindash = () => {
       {/* Sidebar */}
       <div className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
         <div className={styles.sidebarHeader}>
-          <h1 className={styles.logo}>EduAdmin</h1>
+          <h1 className={styles.logo}>Admin</h1>
           <button onClick={() => setSidebarOpen(false)} className={`${styles.closeBtn} lg:hidden`}>
             <X size={20} />
           </button>
@@ -69,12 +82,11 @@ const Admindash = () => {
           })}
         </nav>
 
-        {/* Signup Button */}
         <div className={styles.sidebarFooter}>
           <button
             className={styles.signupBtn}
             onClick={() => {
-              window.location.href = '/Landing'; // or use navigation logic
+              window.location.href = '/Landing';
             }}
           >
             Sign Out
@@ -110,7 +122,13 @@ const Admindash = () => {
                 )}
               </button>
               <div className={styles.profileSection}>
-                <div className={styles.avatar}><span>A</span></div>
+                <div className={styles.avatar}>
+                  {profile.image ? (
+                    <img src={profile.image} alt="Profile" className={styles.avatarImg} />
+                  ) : (
+                    <span>{profile.name?.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
                 <ChevronDown size={16} className={styles.dropdownIcon} />
               </div>
             </div>
@@ -119,7 +137,6 @@ const Admindash = () => {
 
         <main className={styles.mainArea}>
           {activeTab === 'overview' && <Overview />}
-          {/* {activeTab === 'timetables' && <Timetable />} */}
           {activeTab === 'teachers' && <Teacher />}
           {activeTab === 'students' && <Student />}
           {activeTab === 'classes' && <Classes />}
@@ -129,7 +146,6 @@ const Admindash = () => {
         </main>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && <div className={styles.sidebarOverlay} onClick={() => setSidebarOpen(false)}></div>}
     </div>
   );

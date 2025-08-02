@@ -1,6 +1,7 @@
 /* Root Dashboard Container */
 *{
     font-family: 'Poppins', sans-serif;
+     overflow: hidden;
 }
 .dashboard {
   min-height: 100vh;
@@ -12,10 +13,11 @@
 
 /* Sidebar Styles */
 .sidebar{
- 
+
+  position: fixed;
   z-index: 50;
   width: 25rem;
-  height: 100vh;
+  height: 1300px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);

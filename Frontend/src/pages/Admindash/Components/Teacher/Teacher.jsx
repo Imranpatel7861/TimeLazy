@@ -1,16 +1,10 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Users, Edit3, Trash2, Plus, Upload } from 'lucide-react';
+import axios from 'axios';
 import styles from './Teacher.module.css';
 
 const Teacher = () => {
-  const [teachers, setTeachers] = useState([
-    { id: 1, name: 'Dr. Smith', subject: 'Mathematics', email: 'drsmith@eduadmin.com' },
-    { id: 2, name: 'Prof. Johnson', subject: 'Physics', email: 'profjohnson@eduadmin.com' },
-    { id: 3, name: 'Dr. Williams', subject: 'Chemistry', email: 'drwilliams@eduadmin.com' },
-    { id: 4, name: 'Ms. Brown', subject: 'Biology', email: 'msbrown@eduadmin.com' },
-  ]);
-
+  const [teachers, setTeachers] = useState([]);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentTeacher, setCurrentTeacher] = useState(null);
@@ -21,6 +15,19 @@ const Teacher = () => {
   });
 
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
+
+  const fetchTeachers = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/teachers');
+      setTeachers(response.data);
+    } catch (error) {
+      console.error('Failed to fetch teachers', error);
+    }
+  };
 
   const getInitials = (name) => {
     return name
@@ -43,10 +50,15 @@ const Teacher = () => {
     setIsAdding(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirmed = window.confirm('Are you sure you want to delete this teacher?');
     if (confirmed) {
-      setTeachers((prev) => prev.filter((teacher) => teacher.id !== id));
+      try {
+        await axios.delete(`http://localhost:5000/api/teachers/${id}`);
+        fetchTeachers();
+      } catch (error) {
+        console.error('Error deleting teacher:', error);
+      }
     }
   };
 
@@ -58,22 +70,19 @@ const Teacher = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      setTeachers((prev) =>
-        prev.map((teacher) =>
-          teacher.id === currentTeacher.id ? { ...teacher, ...formData } : teacher
-        )
-      );
-    } else {
-      const newTeacher = {
-        id: Math.max(...teachers.map(t => t.id)) + 1,
-        ...formData,
-      };
-      setTeachers((prev) => [...prev, newTeacher]);
+    try {
+      if (isEditing) {
+        await axios.put(`http://localhost:5000/api/teachers/${currentTeacher.id}`, formData);
+      } else {
+        await axios.post('http://localhost:5000/api/teachers', formData);
+      }
+      fetchTeachers();
+      resetForm();
+    } catch (error) {
+      console.error('Error saving teacher:', error);
     }
-    resetForm();
   };
 
   const resetForm = () => {
@@ -93,8 +102,6 @@ const Teacher = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const content = event.target.result;
-        // Parse content to extract teacher information
-        // This is a placeholder for actual parsing logic
         const parsedData = parseFileContent(content);
         setTeachers((prev) => [...prev, parsedData]);
       };
@@ -103,9 +110,12 @@ const Teacher = () => {
   };
 
   const parseFileContent = (content) => {
-    // Placeholder for parsing logic
-    // This function should parse the content and return an object with teacher information
-    return { id: Math.max(...teachers.map(t => t.id)) + 1, name: 'Uploaded Teacher', subject: 'Unknown', email: 'uploaded@eduadmin.com' };
+    return {
+      id: Math.max(0, ...teachers.map((t) => t.id)) + 1,
+      name: 'Uploaded Teacher',
+      subject: 'Unknown',
+      email: 'uploaded@eduadmin.com',
+    };
   };
 
   const handleDragOver = (e) => {
@@ -207,11 +217,7 @@ const Teacher = () => {
           </form>
         </div>
       )}
-      <div
-        className={styles.teachersList}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
+      <div className={styles.teachersList} onDragOver={handleDragOver} onDrop={handleDrop}>
         {teachers.map((teacher) => (
           <div key={teacher.id} className={`${styles.teacherCard} ${styles.cardHover}`}>
             <div className={styles.teacherInfo}>
@@ -229,18 +235,10 @@ const Teacher = () => {
               </div>
             </div>
             <div className={styles.actions}>
-              <button
-                className={styles.editBtn}
-                onClick={() => handleEdit(teacher)}
-                aria-label="Edit teacher"
-              >
+              <button className={styles.editBtn} onClick={() => handleEdit(teacher)} aria-label="Edit teacher">
                 <Edit3 size={30} className={styles.actionIcon} />
               </button>
-              <button
-                className={styles.deleteBtn}
-                onClick={() => handleDelete(teacher.id)}
-                aria-label="Delete teacher"
-              >
+              <button className={styles.deleteBtn} onClick={() => handleDelete(teacher.id)} aria-label="Delete teacher">
                 <Trash2 size={30} className={styles.actionIcon} />
               </button>
             </div>
@@ -251,18 +249,8 @@ const Teacher = () => {
   );
 };
 
-// Helper function to generate random colors for avatars
 const getRandomColor = () => {
-  const colors = [
-    '#3b82f6', // blue
-    '#10b981', // green
-    '#f59e0b', // amber
-    '#8b5cf6', // violet
-    '#ec4899', // pink
-    '#14b8a6', // teal
-    '#f97316', // orange
-    '#6366f1', // indigo
-  ];
+  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1'];
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
