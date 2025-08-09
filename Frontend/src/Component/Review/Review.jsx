@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import styles from './Review.module.css';
 import { Star } from 'lucide-react';
 
@@ -22,7 +22,7 @@ const reviews = [
     img: "https://i.pravatar.cc/40?img=3",
   },
   {
-    quote: "Timelazy makes it incredibly easy to build my weekly schedule",
+    quote: "Timelazy makes it incredibly easy to build my weekly schedule.",
     name: "Michael Scott",
     title: "Regional Manager",
     img: "https://i.pravatar.cc/40?img=4",
@@ -36,20 +36,7 @@ const reviews = [
 ];
 
 const Review = () => {
-  const trackRef = useRef(null);
-
-  useEffect(() => {
-    const track = trackRef.current;
-    let index = 0;
-
-    const interval = setInterval(() => {
-      index = (index + 1) % reviews.length;
-      const width = track.children[0].offsetWidth + 40; // 40 = gap
-      track.style.transform = `translateX(-${index * width}px)`;
-    }, 3500);
-
-    return () => clearInterval(interval);
-  }, []);
+  const repeated = [...reviews, ...reviews]; // repeat for infinite loop
 
   return (
     <div className={styles.container}>
@@ -57,8 +44,8 @@ const Review = () => {
       <p className={styles.subtitle}>Here's why people love our AI-powered scheduling</p>
 
       <div className={styles.carousel}>
-        <div className={styles.carouselTrack} ref={trackRef}>
-          {reviews.map((review, idx) => (
+        <div className={styles.carouselTrack}>
+          {repeated.map((review, idx) => (
             <div key={idx} className={styles.slide}>
               <div className={styles.quote}>"{review.quote}"</div>
               <div className={styles.author}>

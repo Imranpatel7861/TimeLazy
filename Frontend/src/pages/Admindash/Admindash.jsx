@@ -22,6 +22,7 @@ import Seating from './Components/Seating/Seating';
 import Classes from './Components/Classes/Classes';
 import Lab from './Components/Lab/Lab';
 
+
 const Admindash = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,6 +51,7 @@ const Admindash = () => {
     { id: 'timetables', label: 'TimeLazy AI', icon: Clock },
     { id: 'seating', label: 'Seating Planner', icon: Calendar },
     { id: 'settings', label: 'Settings', icon: Settings }
+  
   ];
 
   return (

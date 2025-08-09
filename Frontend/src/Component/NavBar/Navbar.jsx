@@ -1,30 +1,34 @@
-
 import React, { useState } from 'react';
 import styles from './Navbar.module.css';
 import logo from '../../assets/logo.jpg';
 import { Link } from 'react-router-dom';
-import { useTheme } from '../Theme/ThemeContext'; // import the context
+import { useTheme } from '../Theme/ThemeContext';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { theme, toggleTheme } = useTheme(); // get theme and toggle
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const { theme, toggleTheme } = useTheme();
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
+  const toggleDropdown = (menu) => {
+    setDropdownOpen(dropdownOpen === menu ? null : menu);
+  };
+
   return (
-    <nav className={styles.nav} id="mainNav">
-      {/* Logo */}
+    <nav className={styles.nav}>
       <div className={styles.logo}>
         <Link to="/">
           <img src={logo} alt="Logo" />
         </Link>
       </div>
 
-      {/* Main Links */}
       <ul className={`${styles.navLinks} ${menuOpen ? styles.activeMenu : ''}`}>
         <li>
-          Services <i className="fa-solid fa-angle-down"></i>
-          <ul className={styles.dropdownMenu}>
+          <span onClick={() => toggleDropdown('services')}>
+            Services <i className="fa-solid fa-angle-down"></i>
+          </span>
+          <ul className={`${styles.dropdownMenu} ${dropdownOpen === 'services' ? styles.open : ''}`}>
             <li><Link to="/dashboard">AI Timetable</Link></li>
             <li><Link to="/planner">AI Planner</Link></li>
             <li><Link to="/organization">AI for Organization</Link></li>
@@ -36,20 +40,18 @@ const Navbar = () => {
         <li><Link to="/about">About</Link></li>
         <li><Link to="/contactus">Contact</Link></li>
         <li>
-          <span>
+          <span onClick={() => toggleDropdown('login')}>
             Login <i className="fa-solid fa-angle-down"></i>
           </span>
-          <ul className={styles.dropdownMenu}>
+          <ul className={`${styles.dropdownMenu} ${dropdownOpen === 'login' ? styles.open : ''}`}>
             <li><Link to="/LoginPer">Personal</Link></li>
             <li><Link to="/Loginad">Organization</Link></li>
           </ul>
         </li>
       </ul>
 
-      {/* Mobile Menu Button */}
       <button className={styles.mobileMenuBtn} onClick={toggleMenu}>☰</button>
 
-      {/* Dark Mode Toggle */}
       <label className={styles.themeToggleSwitch}>
         <input
           type="checkbox"

@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './ChooseMode.module.css';
-
+import Seating from '../../pages/Admindash/Components/Seating/Seating';
 
 const ChooseMode = () => {
   return (
@@ -39,7 +39,7 @@ const ChooseMode = () => {
             <li>Group analytics</li>
             <li>Role-based permissions</li>
           </ul>
-          <a href="#" className={`${styles.btn} ${styles.team}`}>Try Team Mode</a>
+          <a href="/seating" className={`${styles.btn} ${styles.team}`}>Try Team Mode</a>
         </div>
 
         {/* Organization Card */}

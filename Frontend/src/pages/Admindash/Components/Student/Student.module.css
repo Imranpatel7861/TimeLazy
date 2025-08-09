@@ -1,123 +1,720 @@
+/* Student.module.css */
+
 .container {
-  padding: 2rem;
-  max-width: 1000px;
-  
-  margin: 0 auto;
-  background-color: #f9fafb;
-  font-family: 'Poppins', sans-serif;
-
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #f8fafc, #f0f9ff, #e0e7ff);
 }
 
-.accordion {
-
+.header {
   background: white;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-  
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.accordionHeader {
+.headerContent {
+  max-width: 85rem;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.headerTop {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 1.5rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  background-color: #fff;
-  border: 1px solid #e5e7eb;
-  cursor: pointer;
-  transition: background 0.3s ease;
 }
 
-.accordionHeader:hover {
-  background-color:#10b981;
-  color: #fff;
+.headerIcon {
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  padding: 0.75rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.deptTitle {
+.headerTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #1f2937, #4b5563);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.headerSubtitle {
+  color: #4b5563;
+  margin-top: 0.5rem;
+  font-size: 1.125rem;
+}
+
+.studentCount {
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.studentCountNumber {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.studentCountLabel {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.mainContent {
+  max-width: 85rem;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.yearContainer {
-  padding: 1rem 5rem 2rem;
+.yearCard {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #f3f4f6;
+  transition: box-shadow 0.3s ease;
 }
 
-.yearBlock {
-  margin-top: 1rem;
-  border-left: 3px solid #10b981;
-  padding-left: 1rem;
+.yearCard:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .yearHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #fff;
-  padding: 1rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  padding: 1.5rem;
   cursor: pointer;
-  transition: background 0.3s ease;
-  gap: 0.8rem;
+  transition: box-shadow 0.3s ease;
 }
 
 .yearHeader:hover {
-  background: #f1f5f9;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.yearLabel {
-  flex-grow: 1;
-}
-
-.divisionList {
-  padding: 0.75rem 1.25rem;
-}
-
-.divisionItem {
+.yearHeaderContent {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fff;
-  margin: 0.75rem 0;
-  padding: 1rem;
-  border-left: 5px solid #facc15;
-  border-radius: 10px;
-  border: 1px solid #f3f4f6;
 }
 
-.divisionLabel {
+.yearIcon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  backdrop-filter: blur(4px);
+}
+
+.yearTitle {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.yearSubtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.125rem;
+}
+
+.yearContent {
+  padding: 2rem;
+  background: linear-gradient(to bottom, #f9fafb, white);
+}
+
+.divisionGrid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.divisionCard {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #f3f4f6;
+  transition: box-shadow 0.3s ease;
+}
+
+.divisionCard:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.divisionHeader {
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.divisionHeader:hover {
+  background: linear-gradient(to right, #f0f9ff, #e0e7ff);
+}
+
+.divisionHeaderContent {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 1rem;
+}
+
+.divisionIcon {
+  background: linear-gradient(to right, #3b82f6, #6366f1);
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.divisionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.studentBadge {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
-.pdfBtn {
-  background: #facc15;
-  color: white;
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 8px;
+.studentLabel {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.divisionContent {
+  padding: 1.5rem;
+  background: linear-gradient(to bottom, white, #f9fafb);
+}
+
+.actionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.actionButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  color: #fff;
+}
+
+.actionButton:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.downloadButton {
+  background: linear-gradient(to right, #f59e0b, #ef4444);
+}
+
+.downloadButton:hover {
+  background: linear-gradient(to right, #f59e0b, #dc2626);
+}
+
+.addButton {
+  background: linear-gradient(to right, #10b981, #059669);
+}
+
+.addButton:hover {
+  background: linear-gradient(to right, #059669, #047857);
+}
+
+.showButton {
+  background: linear-gradient(to right, #3b82f6, #6366f1);
+}
+
+.showButton:hover {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+}
+
+.formContainer {
+  background: linear-gradient(to bottom right, #dbeafe, #e0e7ff);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.formTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  background: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.formFileInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid #d1d5db;
+  background: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.formFileInput::file-selector-button {
+  margin-right: 1rem;
+  padding: 0.25rem 1rem;
+  border-radius: 9999px;
+  background: #dbeafe;
+  color: #1e40af;
   font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.formFileInput:hover::file-selector-button {
+  background: #bfdbfe;
+}
+
+.submitButton {
+  background: linear-gradient(to right, #3b82f6, #6366f1);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.submitButton:hover {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.studentListContainer {
+  background: linear-gradient(to bottom right, #f9fafb, white);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.studentListTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.studentBadgeInList {
+  background: #e0e7ff;
+  color: #3b82f6;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.emptyStudentList {
+  text-align: center;
+  padding: 3rem;
+}
+
+.emptyIcon {
+  background: #f3f4f6;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.emptyText {
+  color: #6b7280;
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.emptySubtext {
+  color: #9ca3af;
+}
+
+.studentGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+.studentItem {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow 0.3s ease;
+}
+
+.studentItem:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.studentAvatar {
+  background: linear-gradient(to right, #3b82f6, #6366f1);
+  color: white;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.studentInfo {
+  margin-left: 1rem;
+}
+
+.studentName {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 1.125rem;
+}
+
+.studentDetails {
+  display: flex;
+  margin-top: 0.5rem;
+  gap: 1rem;
+}
+
+.studentDetailBadge {
+  background: #f3f4f6;
+  color: #4b5563;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+.fileBadge {
+  background: #dcfce7;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.deleteButton {
+  background: #ef4444;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.deleteButton:hover {
+  background: #dc2626;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.footer {
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 3rem;
+}
+
+.footerContent {
+  max-width: 85rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.footerText {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Add gradient classes for each year */
+.feGradient {
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+}
+
+.seGradient {
+  background: linear-gradient(to right, #10b981, #059669);
+}
+
+.teGradient {
+  background: linear-gradient(to right, #f59e0b, #ef4444);
+}
+
+.beGradient {
+  background: linear-gradient(to right, #8b5cf6, #ec4899);
+}
+/* ===== Bulk Upload Button ===== */
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  border: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
-.pdfBtn:hover {
-  background: #eab308;
+.uploadButton {
+  background-color: #4cafef;
+  color: white;
 }
 
-.arrow {
-  font-size: 1.2rem;
+.uploadButton:hover {
+  background-color: #3698d3;
+}
+
+/* ===== Modal Overlay ===== */
+.uploadModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 15, 25, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 60px;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===== Modal Container ===== */
+.uploadModalContent {
+  background: #2a2a3d;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 520px;
+  width: 100%;
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ===== Modal Header ===== */
+.uploadModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.uploadModalTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.uploadModalIcon {
+  color: #4cafef;
+}
+
+.uploadModalClose {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.uploadModalClose:hover {
+  color: white;
+}
+
+/* ===== Instructions Section ===== */
+.uploadInstructions {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.instructionsTitle {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.formatList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.formatItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.formatIcon {
+  flex-shrink: 0;
+  color: #4cafef;
+  margin-top: 2px;
+}
+
+.formatItem strong {
+  font-size: 14px;
+}
+
+.formatItem p {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* ===== File Upload Area ===== */
+.uploadArea {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.uploadInput {
+  display: none;
+}
+
+.uploadLabel {
+  display: block;
+  padding: 18px;
+  border: 2px dashed #4cafef;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #4cafef;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s ease;
+}
+
+.uploadLabel:hover {
+  background: rgba(76, 175, 239, 0.08);
+}
+
+.uploadLabel span {
+  display: block;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.uploadLabel small {
+  display: block;
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* Glow when dragging over */
+.uploadLabel.dragOver {
+  border-color: #81d4fa;
+  box-shadow: 0 0 8px #4cafef;
+}
+
+/* ===== Upload Progress ===== */
+.uploadProgress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+.uploadProgress.processing {
+  background: rgba(255, 255, 255, 0.05);
+  color: #4cafef;
+}
+
+.uploadProgress.success {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.uploadProgress.error {
+  background: rgba(244, 67, 54, 0.1);
+  color: #ff4c4c;
+}
+
+.progressIcon {
+  display: flex;
+  align-items: center;
 }

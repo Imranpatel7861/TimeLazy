@@ -1,4 +1,3 @@
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -23,11 +22,13 @@ body {
 .main-content {
   display: flex;
   flex: 1;
+  flex-direction: row;        /* <-- updated */
+  flex-wrap: wrap;            /* <-- updated */
 }
 
 .content-area {
   flex: 1;
-  overflow-y: auto;
+  min-width: 300px;
   max-width: 50%;
   padding: 4rem;
   background: #ffffff;
@@ -36,16 +37,16 @@ body {
 .video-area {
   flex: 1;
   position: fixed;
-  right: 0;
-  top: 180px;
-  bottom: 0;
-  width: 50%;
-  height: 350px;
+  min-width: 300px;
+  width: 45%;
+  height: auto;               /* <-- updated */
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f0f5ff;
   padding: 2rem;
+  margin-top:200px;
+  margin-left:1200px;
 }
 
 .about-text h1 {
@@ -129,10 +130,12 @@ body {
   display: flex;
   gap: 2rem;
   align-items: center;
+  flex-wrap: wrap;          /* <-- added for better small screen behavior */
 }
 
 .column-image {
   flex: 1;
+  min-width: 250px;
 }
 
 .column-image img {
@@ -150,6 +153,7 @@ body {
 
 .column-text {
   flex: 1;
+  min-width: 250px;
 }
 
 .team-section {
@@ -199,9 +203,9 @@ footer p:hover {
   color: white;
   border: none;
   padding: 10px 20px;
-  width:70px;
-  height:70px;
-  border-radius:50%;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
   cursor: pointer;
   font-size: 1rem;
   margin-bottom: 20px;
@@ -209,7 +213,6 @@ footer p:hover {
 }
 
 .back-button:hover {
- 
   background-color: #9a8888;
 }
 
@@ -225,9 +228,10 @@ footer p:hover {
   }
 
   .video-area {
-    position: relative;
     width: 100%;
-    min-height: 400px;
+    height: auto;          /* <-- updated */
+    position: relative;    /* <-- updated to remove fixed position */
+    min-height: 300px;     /* <-- optional for better visuals */
   }
 
   .timelazy-video {

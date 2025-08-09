@@ -17,8 +17,8 @@
 }
 
 .container {
-  max-width: 1300px;
-  margin: 80px auto;
+  max-width: 1600px;
+  margin: 120px auto;
   text-align: center;
   padding: 0 30px;
   background: transparent;
@@ -31,82 +31,91 @@
 }
 
 .subtitle {
-  font-size: 1.2em;
+  font-size: 1.4em;
   color: var(--text-light);
-  margin-bottom: 60px;
+  margin-bottom: 80px;
 }
 
 .carousel {
   position: relative;
   width: 100%;
-  height: 260px;
   overflow: hidden;
+  height: 320px;
 }
 
 .carouselTrack {
   display: flex;
-  transition: transform 0.85s ease-in-out;
-  gap: 40px;
-  will-change: transform;
+  gap: 60px;
+  width: max-content;
+  animation: scroll 30s linear infinite;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .slide {
   flex-shrink: 0;
-  width: 400px;
-  height: 250px;
+  width: 480px;
+  height: 300px;
   background: var(--bg-card);
-  padding: 30px;
-  border-radius: 20px;
+  padding: 40px;
+  border-radius: 24px;
   box-shadow: 0 10px 25px var(--shadow);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  font-size: large;
+  font-size: 1.2rem;
   color: var(--text);
 }
 
 .quote {
-  font-size: 1.6em;
+  font-size: 1.8rem;
   font-weight: 700;
   text-align: center;
-  line-height: 1.4;
-  margin-bottom: 20px;
+  line-height: 1.5;
+  margin-bottom: 24px;
 }
 
 .author {
   display: flex;
   align-items: end;
-  gap: 10px;
+  gap: 12px;
 }
 
 .author img {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 
 .authorInfo {
-  font-size: 0.75em;
+  font-size: 0.85rem;
   color: var(--text-light);
   text-align: left;
   line-height: 1.2;
 }
 
 .authorInfo strong {
-  font-size: 0.85em;
+  font-size: 0.95rem;
   color: var(--text);
 }
 
 /* Responsive */
-@media (max-width: 520px) {
+@media (max-width: 768px) {
   .slide {
     width: 90%;
     height: auto;
-    padding: 20px;
+    padding: 25px;
   }
 
   .quote {
-    font-size: 1.2em;
+    font-size: 1.4rem;
   }
 
   .author {
@@ -115,5 +124,13 @@
 
   .authorInfo {
     text-align: center;
+  }
+
+  .carousel {
+    height: auto;
+  }
+
+  .carouselTrack {
+    animation-duration: 50s;
   }
 }

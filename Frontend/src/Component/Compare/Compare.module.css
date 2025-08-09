@@ -28,7 +28,7 @@
   transition: all 0.5s ease-in-out;
   transform-style: preserve-3d;
   position: relative;
-  margin: 60px auto;
+  margin: 100px auto;
 }
 
 .comparisonContainer:hover {

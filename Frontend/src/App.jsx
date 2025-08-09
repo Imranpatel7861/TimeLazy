@@ -15,6 +15,7 @@ import SignupPer from './pages/SignupPer';
 import Admindash from './pages/Admindash/Admindash';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import Seating from './pages/Admindash/Components/Seating/Seating';
 
 function App() {
   useEffect(() => {
@@ -41,6 +42,7 @@ function App() {
         <Route path="/admindash" element={<Admindash />} />
         <Route path="/ForgotPassword" element={<ForgotPassword/>}/>
         <Route path="/resetpassword" element={<ResetPassword/>}/>
+        <Route path="/seating" element={<Seating/>}/>
       </Routes>
     </BrowserRouter>
   );

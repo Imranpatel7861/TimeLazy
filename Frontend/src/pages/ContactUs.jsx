@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/Contact.css';
-import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock, FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaPaperPlane, FaArrowLeft, FaSpinner } from 'react-icons/fa';
+import {
+  FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaClock,
+  FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn,
+  FaPaperPlane, FaArrowLeft, FaSpinner
+} from 'react-icons/fa';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -35,10 +39,9 @@ const ContactUs = () => {
     return re.test(email);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Reset errors
     setErrors({
       name: false,
       email: false,
@@ -46,7 +49,6 @@ const ContactUs = () => {
       message: false
     });
 
-    // Validate form
     let valid = true;
     const newErrors = { ...errors };
 
@@ -54,17 +56,14 @@ const ContactUs = () => {
       newErrors.name = true;
       valid = false;
     }
-
     if (!validateEmail(formData.email)) {
       newErrors.email = true;
       valid = false;
     }
-
     if (!formData.subject.trim()) {
       newErrors.subject = true;
       valid = false;
     }
-
     if (!formData.message.trim()) {
       newErrors.message = true;
       valid = false;
@@ -74,28 +73,34 @@ const ContactUs = () => {
 
     if (valid) {
       setIsSubmitting(true);
-
-      // Simulate form submission
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setSubmitSuccess(true);
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
+      try {
+        const response = await fetch('http://localhost:5000/api/contact', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData),
+          credentials: 'include'
         });
 
-        // Hide success message after 5 seconds
-        setTimeout(() => {
-          setSubmitSuccess(false);
-        }, 5000);
-      }, 1500);
+        const data = await response.json();
+        if (response.ok) {
+          setSubmitSuccess(true);
+          setFormData({ name: '', email: '', subject: '', message: '' });
+          setTimeout(() => setSubmitSuccess(false), 5000);
+        } else {
+          console.error('Failed to send message:', data);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
   const handleBack = () => {
-    navigate('/Landing'); // Navigate to the landing page
+    navigate('/Landing');
   };
 
   return (
@@ -121,9 +126,7 @@ const ContactUs = () => {
           <h2>Get in Touch</h2>
 
           <div className="info-item">
-            <div className="info-icon">
-              <FaMapMarkerAlt />
-            </div>
+            <div className="info-icon"><FaMapMarkerAlt /></div>
             <div className="info-text">
               <h3>Our Location</h3>
               <p>TimeLazy, Pune, India</p>
@@ -131,9 +134,7 @@ const ContactUs = () => {
           </div>
 
           <div className="info-item">
-            <div className="info-icon">
-              <FaPhoneAlt />
-            </div>
+            <div className="info-icon"><FaPhoneAlt /></div>
             <div className="info-text">
               <h3>Phone Number</h3>
               <p>7558278187</p>
@@ -141,9 +142,7 @@ const ContactUs = () => {
           </div>
 
           <div className="info-item">
-            <div className="info-icon">
-              <FaEnvelope />
-            </div>
+            <div className="info-icon"><FaEnvelope /></div>
             <div className="info-text">
               <h3>Email Address</h3>
               <p>support@timelazy.com</p>
@@ -151,9 +150,7 @@ const ContactUs = () => {
           </div>
 
           <div className="info-item">
-            <div className="info-icon">
-              <FaClock />
-            </div>
+            <div className="info-icon"><FaClock /></div>
             <div className="info-text">
               <h3>Working Hours</h3>
               <p>Monday - Friday: 9:00 AM - 6:00 PM<br />Saturday: 10:00 AM - 4:00 PM</p>
@@ -161,18 +158,10 @@ const ContactUs = () => {
           </div>
 
           <div className="social-links">
-            <a href="https://www.facebook.com/profile.php?id=61570261174985&mibextid=ZbWKwL" className="social-link" title="Facebook">
-              <FaFacebookF />
-            </a>
-            <a href="https://x.com/incorbis?t=yRcNnKknmtATHWpOXWnA6w&s=09" className="social-link" title="Twitter">
-              <FaTwitter />
-            </a>
-            <a href="https://www.instagram.com/incorbis.official?igsh=dXRhdzh5NGdlency" className="social-link" title="Instagram">
-              <FaInstagram />
-            </a>
-            <a href="#" className="social-link" title="LinkedIn">
-              <FaLinkedinIn />
-            </a>
+            <a href="https://www.facebook.com/profile.php?id=61570261174985&mibextid=ZbWKwL" className="social-link" title="Facebook"><FaFacebookF /></a>
+            <a href="https://x.com/incorbis?t=yRcNnKknmtATHWpOXWnA6w&s=09" className="social-link" title="Twitter"><FaTwitter /></a>
+            <a href="https://www.instagram.com/incorbis.official?igsh=dXRhdzh5NGdlency" className="social-link" title="Instagram"><FaInstagram /></a>
+            <a href="#" className="social-link" title="LinkedIn"><FaLinkedinIn /></a>
           </div>
         </div>
 
