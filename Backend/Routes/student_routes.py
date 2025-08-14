@@ -1,12 +1,14 @@
 from flask import Blueprint, request, jsonify, current_app
+from flask_cors import CORS
 import os
 
 student_bp = Blueprint('student', __name__, url_prefix='/api/admin')
+CORS(student_bp)  # Enable CORS for this Blueprint
 
 # ---------------------- GET Students ----------------------
 @student_bp.route('/students', methods=['GET'])
 def get_students():
-    admin_id = request.args.get('admin_id')  # 🔹 Required for filtering
+    admin_id = request.args.get('admin_id')
     year = request.args.get('year')
     division = request.args.get('division')
 
@@ -26,21 +28,22 @@ def get_students():
     if filters:
         query += " AND " + " AND ".join(filters)
 
-    cur = current_app.mysql.connection.cursor(dictionary=True)
-    cur.execute(query, tuple(params))
-    students = cur.fetchall()
-    cur.close()
-
-    return jsonify(students), 200
-
+    try:
+        cur = current_app.mysql.connection.cursor(dictionary=True)
+        cur.execute(query, tuple(params))
+        students = cur.fetchall()
+        return jsonify(students), 200
+    except Exception as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+    finally:
+        cur.close()
 
 # ---------------------- Add Single Student ----------------------
 @student_bp.route('/students', methods=['POST'])
 def add_student():
     data = request.json
-    print("Received data:", data)
-
     required_fields = ['rollNo', 'name', 'prn', 'year', 'division', 'admin_id']
+
     if not all(key in data for key in required_fields):
         missing_fields = [field for field in required_fields if field not in data]
         return jsonify({"error": f"Missing required fields: {missing_fields}"}), 400
@@ -54,11 +57,9 @@ def add_student():
         current_app.mysql.connection.commit()
         return jsonify({"message": "Student added successfully"}), 201
     except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": f"An error occurred while adding the student: {str(e)}"}), 500
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
     finally:
         cur.close()
-
 
 # ---------------------- Bulk Upload Students ----------------------
 @student_bp.route('/students/bulk', methods=['POST'])
@@ -80,10 +81,10 @@ def bulk_upload_students():
     file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], file.filename)
     file.save(file_path)
 
-    with open(file_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-
     try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
         cur = current_app.mysql.connection.cursor()
         for line in lines:
             parts = line.strip().split(',')
@@ -96,11 +97,9 @@ def bulk_upload_students():
         current_app.mysql.connection.commit()
         return jsonify({"message": "Bulk upload successful"}), 201
     except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": f"An error occurred during bulk upload: {str(e)}"}), 500
+        return jsonify({"error": f"Error processing file: {str(e)}"}), 500
     finally:
         cur.close()
-
 
 # ---------------------- Delete Student ----------------------
 @student_bp.route('/students/<int:student_id>', methods=['DELETE'])
@@ -119,7 +118,6 @@ def delete_student(student_id):
         current_app.mysql.connection.commit()
         return jsonify({"message": "Student deleted successfully"}), 200
     except Exception as e:
-        print("Error:", e)
-        return jsonify({"error": f"An error occurred while deleting the student: {str(e)}"}), 500
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
     finally:
         cur.close()

@@ -105,7 +105,7 @@ const Signupad = () => {
       <div className={styles.signupCard}>
         {signupSuccess ? (
           <div className={styles.successMessage}>
-            <div className={styles.successIcon}>
+            {/* <div className={styles.successIcon}>
               <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="12" fill="#4facfe" />
                 <path d="M8 12L10.5 14.5L16 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -138,7 +138,7 @@ const Signupad = () => {
                   <path d="M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
-            </div>
+            </div> */}
           </div>
         ) : (
           <>
@@ -474,7 +474,7 @@ const Signupad = () => {
             </div>
 
             <div className={styles.footer}>
-              <p>Already have an account? <a href="#" className={styles.loginLink}>Sign in</a></p>
+              <p>Already have an account? <a href="/Loginad" className={styles.loginLink}>Log in</a></p>
             </div>
           </>
         )}
