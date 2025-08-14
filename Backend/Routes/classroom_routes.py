@@ -5,45 +5,38 @@ classroom_bp = Blueprint('classroom', __name__, url_prefix='/api')
 # ---------------------- Add Classroom ----------------------
 @classroom_bp.route('/classrooms', methods=['POST'])
 def add_classroom():
-    data = request.get_json()
+    data = request.json
     classroom_number = data.get('classroom_number')
-    admin_id = data.get('admin_id')  # <-- required
+    admin_id = data.get('admin_id')
 
-    # Validate required fields
     if not classroom_number or not admin_id:
-        return jsonify({"error": "classroom_number and admin_id are required"}), 400
+        return jsonify({"error": "Missing classroom_number or admin_id"}), 400
 
-    cur = current_app.mysql.connection.cursor()
+    import MySQLdb.cursors
+    cur = current_app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+
     try:
-        # Optional: prevent duplicates for the same admin
-        cur.execute("""
-            SELECT id FROM classrooms 
-            WHERE classroom_number = %s AND admin_id = %s
-        """, (classroom_number, admin_id))
-        if cur.fetchone():
-            return jsonify({"error": "Classroom already exists for this admin"}), 409
-
-        # Insert classroom with admin_id
-        cur.execute("""
-            INSERT INTO classrooms (classroom_number, admin_id) 
-            VALUES (%s, %s)
-        """, (classroom_number, admin_id))
+        cur.execute(
+            "INSERT INTO classrooms (classroom_number, admin_id) VALUES (%s, %s)",
+            (classroom_number, admin_id)
+        )
         current_app.mysql.connection.commit()
-
         return jsonify({"message": "Classroom added successfully"}), 201
     except Exception as e:
-        print("Error:", e)
+        print("Error adding classroom:", e)
         return jsonify({"error": "Failed to add classroom"}), 500
     finally:
         cur.close()
 
 
 # ---------------------- Get Classrooms ----------------------
+
 @classroom_bp.route('/classrooms', methods=['GET'])
 def get_classrooms():
-    admin_id = request.args.get('admin_id')  # <-- filter by admin
+    admin_id = request.args.get('admin_id')
 
-    cur = current_app.mysql.connection.cursor(dictionary=True)
+    import MySQLdb.cursors
+    cur = current_app.mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     try:
         if admin_id:
             cur.execute("""
@@ -70,11 +63,14 @@ def get_classrooms():
 # ---------------------- Delete Classroom ----------------------
 @classroom_bp.route('/classrooms/<int:classroom_id>', methods=['DELETE'])
 def delete_classroom(classroom_id):
-    admin_id = request.args.get('admin_id')  # <-- security check
+    admin_id = request.args.get('admin_id')
+
+    if not admin_id:
+        return jsonify({"error": "admin_id is required"}), 400
 
     cur = current_app.mysql.connection.cursor()
     try:
-        # Check if classroom belongs to this admin before deleting
+        # Verify ownership before deleting
         cur.execute("""
             SELECT id FROM classrooms 
             WHERE id = %s AND admin_id = %s
@@ -84,9 +80,12 @@ def delete_classroom(classroom_id):
 
         cur.execute("DELETE FROM classrooms WHERE id = %s", (classroom_id,))
         current_app.mysql.connection.commit()
+
         return jsonify({"message": "Classroom deleted successfully"}), 200
+
     except Exception as e:
-        print("Error:", e)
+        current_app.logger.error(f"Error deleting classroom: {e}")
         return jsonify({"error": "Failed to delete classroom"}), 500
+
     finally:
         cur.close()

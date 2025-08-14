@@ -9,14 +9,31 @@ const Classes = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Replace with your backend base URL
+  // Safely parse logged-in user from localStorage
+  let adminId = null;
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      adminId = parsedUser?.id || null;
+    }
+  } catch (err) {
+    console.error('Failed to parse user from localStorage:', err);
+  }
+
   const API_BASE = 'http://localhost:5000/api/classrooms';
 
-  // Fetch classrooms
+  // Fetch classrooms for this admin
   const fetchClassrooms = async () => {
+    if (!adminId) {
+      setError('Admin ID is missing — please log in.');
+      return;
+    }
     setLoading(true);
     try {
-      const res = await axios.get(API_BASE);
+      const res = await axios.get(API_BASE, {
+        params: { admin_id: adminId }
+      });
       setClassrooms(res.data);
       setError('');
     } catch (err) {
@@ -29,25 +46,33 @@ const Classes = () => {
 
   useEffect(() => {
     fetchClassrooms();
-  }, []);
+  }, [adminId]);
 
   // Add new classroom
   const handleAdd = async () => {
-    const trimmed = newClassroom.trim().toUpperCase();
+    if (!adminId) {
+      setError('Cannot add classroom — Admin ID is missing.');
+      return;
+    }
+
+    const trimmed = newClassroom.trim();
     if (!trimmed) {
       setError('Classroom number is required');
       setTimeout(() => setError(''), 3000);
       return;
     }
 
-    if (classrooms.some(cls => cls.classroom_name === trimmed)) {
+    if (classrooms.some(cls => String(cls.classroom_number) === trimmed)) {
       setError('Classroom already exists');
       setTimeout(() => setError(''), 3000);
       return;
     }
 
     try {
-      await axios.post(API_BASE, { classroom_name: trimmed });
+      await axios.post(API_BASE, { 
+        classroom_number: trimmed,
+        admin_id: adminId
+      });
       setNewClassroom('');
       fetchClassrooms();
     } catch (err) {
@@ -58,8 +83,15 @@ const Classes = () => {
 
   // Delete classroom
   const handleDelete = async (classroomId) => {
+    if (!adminId) {
+      setError('Cannot delete classroom — Admin ID is missing.');
+      return;
+    }
+
     try {
-      await axios.delete(`${API_BASE}/${classroomId}`);
+      await axios.delete(`${API_BASE}/${classroomId}`, {
+        params: { admin_id: adminId }
+      });
       fetchClassrooms();
     } catch (err) {
       console.error(err);
@@ -85,9 +117,13 @@ const Classes = () => {
             }}
             placeholder="Enter classroom number"
             className={styles.input}
-            disabled={loading}
+            disabled={loading || !adminId}
           />
-          <button onClick={handleAdd} className={styles.addBtn} disabled={loading}>
+          <button 
+            onClick={handleAdd} 
+            className={styles.addBtn} 
+            disabled={loading || !adminId}
+          >
             <Plus size={24} /> Add
           </button>
         </div>
@@ -107,12 +143,14 @@ const Classes = () => {
               <div key={classroom.id} className={styles.card}>
                 <div className={styles.classInfo}>
                   <Building2 size={24} />
-                  <span className={styles.roomText}>Room {classroom.classroom_name}</span>
+                  <span className={styles.roomText}>
+                    Room {classroom.classroom_number}
+                  </span>
                 </div>
                 <button
                   className={styles.deleteBtn}
                   onClick={() => handleDelete(classroom.id)}
-                  aria-label={`Delete classroom ${classroom.classroom_name}`}
+                  aria-label={`Delete classroom ${classroom.classroom_number}`}
                 >
                   <Trash2 size={20} />
                 </button>
