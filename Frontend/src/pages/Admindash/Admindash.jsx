@@ -1,14 +1,12 @@
 // Admindash.jsx
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Calendar,
   Users,
   BookOpen,
   Clock,
   Settings,
-  Bell,
-  Search,
-  ChevronDown,
   Menu,
   X
 } from 'lucide-react';
@@ -22,25 +20,93 @@ import Seating from './Components/Seating/Seating';
 import Classes from './Components/Classes/Classes';
 import Lab from './Components/Lab/Lab';
 
-
 const Admindash = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [notifications, setNotifications] = useState(3);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [profile, setProfile] = useState({ name: 'Admin', email: '', image: null });
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    image: null
+  });
+  const [dashboardData, setDashboardData] = useState(null);
 
+  const token = localStorage.getItem('token');
+
+  // Load profile on mount
   useEffect(() => {
-    fetch('http://localhost:5000/api/profile')
-      .then(res => res.json())
+    if (!token) {
+      window.location.href = '/loginad';
+      return;
+    }
+
+    fetch('http://localhost:5000/api/personal/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(res => {
+        if (res.status === 401) {
+          localStorage.clear();
+          window.location.href = '/loginad';
+          return null;
+        }
+        return res.json();
+      })
       .then(data => {
-        setProfile({
+        if (!data) return;
+
+        let imageUrl = null;
+        if (data.profile_pic) {
+          imageUrl = data.profile_pic.startsWith('http')
+            ? data.profile_pic
+            : `http://localhost:5000/uploads/${data.profile_pic}`;
+        }
+
+        const updatedProfile = {
           name: data.name || 'Admin',
-          email: data.email,
-          image: data.profile_pic ? `http://localhost:5000/uploads/${data.profile_pic}` : null
-        });
+          email: data.email || '',
+          image: imageUrl
+        };
+
+        localStorage.setItem('userName', updatedProfile.name);
+        localStorage.setItem('userEmail', updatedProfile.email);
+        if (updatedProfile.image) {
+          localStorage.setItem('profileImage', updatedProfile.image);
+        }
+
+        setProfile(updatedProfile);
+      })
+      .catch(err => {
+        console.error('Error fetching profile:', err);
+        localStorage.clear();
+        window.location.href = '/loginad';
       });
-  }, []);
+  }, [token]);
+
+  // Fetch dashboard data on activeTab change
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchDashboardData = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/admin/dashboard?tab=${activeTab}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setDashboardData(res.data.data);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        if (error.response && error.response.status === 401) {
+          localStorage.clear();
+          window.location.href = '/loginad';
+        }
+      }
+    };
+
+    fetchDashboardData();
+  }, [activeTab, token]);
 
   const menuItems = [
     { id: 'overview', label: 'Overview', icon: Calendar },
@@ -51,8 +117,12 @@ const Admindash = () => {
     { id: 'timetables', label: 'TimeLazy AI', icon: Clock },
     { id: 'seating', label: 'Seating Planner', icon: Calendar },
     { id: 'settings', label: 'Settings', icon: Settings }
-  
   ];
+
+  const handleSignOut = () => {
+    localStorage.clear();
+    window.location.href = '/Landing';
+  };
 
   return (
     <div className={styles.dashboard}>
@@ -87,9 +157,7 @@ const Admindash = () => {
         <div className={styles.sidebarFooter}>
           <button
             className={styles.signupBtn}
-            onClick={() => {
-              window.location.href = '/Landing';
-            }}
+            onClick={handleSignOut}
           >
             Sign Out
           </button>
@@ -104,25 +172,11 @@ const Admindash = () => {
               <button onClick={() => setSidebarOpen(true)} className={`${styles.menuBtn} lg:hidden`}>
                 <Menu size={20} />
               </button>
-              <h2 className={styles.pageTitle}>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+              <h2 className={styles.pageTitle}>
+                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+              </h2>
             </div>
             <div className={styles.headerRight}>
-              <div className={styles.searchContainer}>
-                <Search className={styles.searchIcon} size={20} />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-              <button className={styles.notificationBtn}>
-                <Bell size={20} />
-                {notifications > 0 && (
-                  <span className={styles.notificationBadge}>{notifications}</span>
-                )}
-              </button>
               <div className={styles.profileSection}>
                 <div className={styles.avatar}>
                   {profile.image ? (
@@ -131,19 +185,18 @@ const Admindash = () => {
                     <span>{profile.name?.charAt(0).toUpperCase()}</span>
                   )}
                 </div>
-                <ChevronDown size={16} className={styles.dropdownIcon} />
               </div>
             </div>
           </div>
         </header>
 
         <main className={styles.mainArea}>
-          {activeTab === 'overview' && <Overview />}
-          {activeTab === 'teachers' && <Teacher />}
-          {activeTab === 'students' && <Student />}
-          {activeTab === 'classes' && <Classes />}
-          {activeTab === 'lab' && <Lab />}
-          {activeTab === 'seating' && <Seating />}
+          {activeTab === 'overview' && <Overview data={dashboardData} />}
+          {activeTab === 'teachers' && <Teacher data={dashboardData} />}
+          {activeTab === 'students' && <Student data={dashboardData} />}
+          {activeTab === 'classes' && <Classes data={dashboardData} />}
+          {activeTab === 'lab' && <Lab data={dashboardData} />}
+          {activeTab === 'seating' && <Seating data={dashboardData} />}
           {activeTab === 'settings' && <Setting />}
         </main>
       </div>

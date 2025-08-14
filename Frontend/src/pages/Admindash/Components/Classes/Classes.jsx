@@ -9,14 +9,18 @@ const Classes = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Fetch classrooms from backend
+  // Replace with your backend base URL
+  const API_BASE = 'http://localhost:5000/api/classrooms';
+
+  // Fetch classrooms
   const fetchClassrooms = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/classrooms');
+      const res = await axios.get(API_BASE);
       setClassrooms(res.data);
       setError('');
     } catch (err) {
+      console.error(err);
       setError('Error fetching classrooms');
     } finally {
       setLoading(false);
@@ -29,34 +33,37 @@ const Classes = () => {
 
   // Add new classroom
   const handleAdd = async () => {
-    const trimmed = newClassroom.trim();
+    const trimmed = newClassroom.trim().toUpperCase();
     if (!trimmed) {
       setError('Classroom number is required');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+
+    if (classrooms.some(cls => cls.classroom_name === trimmed)) {
+      setError('Classroom already exists');
+      setTimeout(() => setError(''), 3000);
       return;
     }
 
     try {
-      await axios.post('http://localhost:5000/api/classrooms', { classroom_name: trimmed });
+      await axios.post(API_BASE, { classroom_name: trimmed });
       setNewClassroom('');
-      setError('');
       fetchClassrooms();
     } catch (err) {
-      if (err.response?.status === 409) {
-        setError(err.response.data.error || 'Classroom already exists');
-      } else {
-        setError('Failed to add classroom');
-      }
+      console.error(err);
+      setError('Failed to add classroom');
     }
   };
 
-  // Delete classroom by ID
+  // Delete classroom
   const handleDelete = async (classroomId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/classrooms/${classroomId}`);
+      await axios.delete(`${API_BASE}/${classroomId}`);
       fetchClassrooms();
-      setError('');
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to delete classroom');
+      console.error(err);
+      setError('Failed to delete classroom');
     }
   };
 
@@ -64,9 +71,10 @@ const Classes = () => {
     <div className={styles.animatedBackground}>
       <div className={styles.container}>
         <h2 className={styles.title}>Classroom Management</h2>
+
         <div className={styles.inputRow}>
           <input
-            type="text"
+            type="number"
             value={newClassroom}
             onChange={(e) => {
               setNewClassroom(e.target.value);
@@ -77,14 +85,22 @@ const Classes = () => {
             }}
             placeholder="Enter classroom number"
             className={styles.input}
+            disabled={loading}
           />
-          <button onClick={handleAdd} className={styles.addBtn}>
+          <button onClick={handleAdd} className={styles.addBtn} disabled={loading}>
             <Plus size={24} /> Add
           </button>
         </div>
+
         {error && <div className={styles.error}>{error}</div>}
+
         {loading ? (
           <div className={styles.loading}>Loading classrooms...</div>
+        ) : classrooms.length === 0 ? (
+          <div className={styles.emptyState}>
+            <Building2 size={48} />
+            <p>No classrooms found. Add one to get started.</p>
+          </div>
         ) : (
           <div className={styles.grid}>
             {classrooms.map((classroom) => (
@@ -93,8 +109,12 @@ const Classes = () => {
                   <Building2 size={24} />
                   <span className={styles.roomText}>Room {classroom.classroom_name}</span>
                 </div>
-                <button className={styles.deleteBtn} onClick={() => handleDelete(classroom.id)}>
-                  <Trash2 size={36} />
+                <button
+                  className={styles.deleteBtn}
+                  onClick={() => handleDelete(classroom.id)}
+                  aria-label={`Delete classroom ${classroom.classroom_name}`}
+                >
+                  <Trash2 size={20} />
                 </button>
               </div>
             ))}

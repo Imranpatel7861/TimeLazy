@@ -71,7 +71,7 @@ const Footer = () => {
       </div>
 
       <div className={styles.copyright}>
-        <p>&copy; 2025 AI TimeTabler. All rights reserved.</p>
+        <p>&copy; 2025 TIMELAZY. All rights reserved.</p>
       </div>
     </footer>
   );

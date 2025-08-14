@@ -1,96 +1,100 @@
+/* Teacher.module.css */
 .teachersContainer {
-  padding: 0.5rem;
-  background: #f9fafb;
-  border-radius: 1rem;
-    font-family: 'Poppins', sans-serif;
+  padding: 1.5rem;
+  background: #f3f4f6;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
 }
 
 .headerRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
+  margin-bottom: 2rem;
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+.titleIcon {
+  color: #3b82f6;
+}
 
-.uploadBtn {
-  height: 70px;
-  width: 200px;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+}
+
+.addBtn, .uploadBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  font-weight: 600;
-  font-size: large;
-  transition: background 0.3s ease;
-  
-  margin-top: 10px;
-}
-
-.addBtn {
-  height: 70px;
-  width: 200px;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
   font-weight: 600;
-  font-size: large;
-  transition: background 0.3s ease;
-  
-}
-.addBtn {
-  background: #3b82f6;
-  margin-left: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.uploadBtn {
-  background: #14b8a6;
+.addBtn {
+  background-color: #3b82f6;
+  color: white;
 }
 
 .addBtn:hover {
-  background: #2563eb;
+  background-color: #2563eb;
+}
+
+.uploadBtn {
+  background-color: #10b981;
+  color: white;
 }
 
 .uploadBtn:hover {
-  background: #10b981;
+  background-color: #0d946a;
 }
 
 .formContainer {
   background: white;
   border-radius: 0.75rem;
-  padding: 3.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.formTitle {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+.teacherForm {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.formContainer h3 {
-  font-size: 1.25rem;
-  color: #1f2937;
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.formContainer input {
-  width: 300px;
+.inputGroup label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.formInput {
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
@@ -99,65 +103,67 @@
 
 .formActions {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.submitBtn, .cancelBtn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 .submitBtn {
-  width: 150px;
-  height: 50px;
-  background: #3b82f6;
+  background-color: #3b82f6;
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
+}
+
+.submitBtn:hover {
+  background-color: #2563eb;
 }
 
 .cancelBtn {
-  background: #ef4444;
+  background-color: #ef4444;
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
+}
+
+.cancelBtn:hover {
+  background-color: #dc2626;
 }
 
 .teachersList {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .teacherCard {
   background: white;
   border-radius: 0.75rem;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 160px;
-  width: 100%;
 }
 
 .teacherInfo {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .avatar {
-  background: #3b82f6;
-  color: white;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
-  width: 4.5rem;
-  height: 4.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 1.1rem;
+  color: white;
 }
 
 .teacherDetails {
@@ -167,19 +173,23 @@
 
 .teacherName {
   font-size: 1.125rem;
-  font-weight: 700;
+  font-weight: 600;
   color: #111827;
 }
 
 .teacherSubject {
-  font-size: 1.05rem;
+  font-size: 0.875rem;
   color: #6b7280;
 }
 
 .teacherEmail {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #3b82f6;
   text-decoration: none;
+}
+
+.teacherEmail:hover {
+  text-decoration: underline;
 }
 
 .actions {
@@ -188,27 +198,30 @@
   gap: 0.5rem;
 }
 
-.editBtn,
-.deleteBtn {
+.editBtn, .deleteBtn {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0.3rem;
+  padding: 0.5rem;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.3s;
 }
 
 .editBtn {
   color: #3b82f6;
 }
 
+.editBtn:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
 .deleteBtn {
   color: #ef4444;
 }
 
-.editBtn:hover,
 .deleteBtn:hover {
-  background: rgba(59, 130, 246, 0.1);
+  background-color: rgba(239, 68, 68, 0.1);
 }

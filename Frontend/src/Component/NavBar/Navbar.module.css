@@ -57,6 +57,7 @@
   position: relative;
   font-size: larger;
   color: var(--nav-text);
+  cursor: pointer;
 }
 
 .navLinks a {
@@ -71,6 +72,18 @@
   color: var(--dropdown-hover-text);
 }
 
+.navLinks span {
+  color: var(--nav-text);
+  padding: 0.5rem 3rem;
+  border-radius: 5px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.navLinks span:hover {
+  color: var(--dropdown-hover-text);
+}
+
 /* Dropdown Menu */
 .dropdownMenu {
   display: none;
@@ -78,35 +91,45 @@
   top: 100%;
   left: 0;
   background-color: var(--dropdown-bg);
-  box-shadow: 0 2px 10px var(--nav-shadow);
-  border-radius: 5px;
-  z-index: 1000;
+  box-shadow: 0 4px 15px var(--nav-shadow);
+  border-radius: 8px;
+  z-index: 1001;
   list-style: none;
-  padding: 0.5rem 0;
-  min-width: 200px;
+  padding: 0.75rem 0;
+  min-width: 220px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .dropdownMenu {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dropdownMenu.open {
+  display: block;
 }
 
 .dropdownMenu li {
   margin: 0;
   padding: 0;
+  width: 100%;
 }
 
 .dropdownMenu li a {
   display: block;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   text-decoration: none;
-  color: var(--nav-text);
-  transition: all 0.3s;
+  color: var(--nav-text) !important;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 400;
+  white-space: nowrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dropdownMenu li a:hover {
   background-color: var(--dropdown-hover-bg);
-  color: var(--dropdown-hover-text);
-}
-
-/* Show Dropdown on Hover */
-.navLinks li:hover .dropdownMenu {
-  display: block;
+  color: var(--dropdown-hover-text) !important;
 }
 
 /* Mobile Menu Button */

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import axios from 'axios';
 import { Download, CalendarDays, Users, Building2, Plus, Trash2, User, BookOpen, GraduationCap, FileText, Upload, Eye, EyeOff, UploadCloud, File, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import styles from './Student.module.css';
@@ -42,7 +43,6 @@ const Student = () => {
   const [showUploadModal, setShowUploadModal] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(null);
   const fileInputRef = useRef(null);
-
   const [formData, setFormData] = useState({
     name: '',
     rollNo: '',
@@ -105,7 +105,7 @@ const Student = () => {
     }));
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
     if (!formData.name || !formData.rollNo || !formData.prn) {
       alert('Please fill all required fields');
       return;
@@ -113,39 +113,46 @@ const Student = () => {
     const [year, division] = showForm.split('-');
     const newStudent = {
       id: Date.now(),
-      name: formData.name,
       rollNo: formData.rollNo,
+      name: formData.name,
       prn: formData.prn,
-      file: formData.file ? formData.file.name : null
+      year: year,
+      division: division
     };
-    setData(prev => ({
-      ...prev,
-      [year]: {
-        ...prev[year],
-        students: {
-          ...prev[year].students,
-          [division]: [...prev[year].students[division], newStudent]
-        }
+    try {
+      const response = await axios.post('http://localhost:5000/api/admin/students', newStudent);
+      if (response.status === 201) {
+        alert(`Student added to ${year} - ${division}`);
+        setData(prevData => ({
+          ...prevData,
+          [year]: {
+            ...prevData[year],
+            students: {
+              ...prevData[year].students,
+              [division]: [...prevData[year].students[division], newStudent]
+            }
+          }
+        }));
+        setShowForm(null);
+        setFormData({
+          name: '',
+          rollNo: '',
+          prn: '',
+          file: null
+        });
       }
-    }));
-    alert(`Student added to ${year} - ${division}`);
-    setShowForm(null);
-    setFormData({
-      name: '',
-      rollNo: '',
-      prn: '',
-      file: null
-    });
+    } catch (error) {
+      console.error('Error adding student:', error);
+      alert('Error adding student');
+    }
   };
 
   const parseTextFile = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
     const students = [];
-
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
-
       if (line.includes(',')) {
         const parts = line.split(',').map(p => p.trim());
         if (parts.length >= 3) {
@@ -157,8 +164,7 @@ const Student = () => {
             file: null
           });
         }
-      }
-      else if (line.includes('|')) {
+      } else if (line.includes('|')) {
         const parts = line.split('|').map(p => p.trim());
         if (parts.length >= 3) {
           students.push({
@@ -169,8 +175,7 @@ const Student = () => {
             file: null
           });
         }
-      }
-      else if (line.includes('\t')) {
+      } else if (line.includes('\t')) {
         const parts = line.split('\t').map(p => p.trim());
         if (parts.length >= 3) {
           students.push({
@@ -183,7 +188,6 @@ const Student = () => {
         }
       }
     }
-
     return students;
   };
 
@@ -191,60 +195,29 @@ const Student = () => {
     const file = event.target.files[0];
     if (!file) return;
     const [year, division] = showUploadModal.split('-');
-
     setUploadProgress({ status: 'processing', message: 'Processing file...' });
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('year', year);
+    formData.append('division', division);
     try {
-      let students = [];
-      const fileType = file.name.split('.').pop().toLowerCase();
-      if (fileType === 'txt') {
-        const text = await file.text();
-        students = parseTextFile(text);
-      } else if (fileType === 'pdf') {
-        setUploadProgress({
-          status: 'error',
-          message: 'PDF parsing requires additional libraries. Please convert to TXT format for now.'
-        });
-        return;
-      } else if (fileType === 'doc' || fileType === 'docx') {
-        setUploadProgress({
-          status: 'error',
-          message: 'Word document parsing requires additional libraries. Please convert to TXT format for now.'
-        });
-        return;
-      } else {
-        setUploadProgress({
-          status: 'error',
-          message: 'Unsupported file format. Please use TXT, PDF, or DOC files.'
-        });
-        return;
-      }
-      if (students.length === 0) {
-        setUploadProgress({
-          status: 'error',
-          message: 'No valid student data found in file. Please check the format.'
-        });
-        return;
-      }
-      setData(prev => ({
-        ...prev,
-        [year]: {
-          ...prev[year],
-          students: {
-            ...prev[year].students,
-            [division]: [...prev[year].students[division], ...students]
-          }
+      const response = await axios.post('http://localhost:5000/api/admin/students/bulk', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      }));
-      setUploadProgress({
-        status: 'success',
-        message: `Successfully uploaded ${students.length} students!`
       });
-
-      setTimeout(() => {
-        setShowUploadModal(null);
-        setUploadProgress(null);
-      }, 2000);
+      if (response.status === 201) {
+        setUploadProgress({
+          status: 'success',
+          message: `Successfully uploaded students!`
+        });
+        setTimeout(() => {
+          setShowUploadModal(null);
+          setUploadProgress(null);
+        }, 2000);
+      }
     } catch (error) {
+      console.error('Error uploading file:', error);
       setUploadProgress({
         status: 'error',
         message: 'Error processing file. Please try again.'
@@ -255,17 +228,25 @@ const Student = () => {
     }
   };
 
-  const handleDeleteStudent = (year, division, studentId) => {
-    setData(prev => ({
-      ...prev,
-      [year]: {
-        ...prev[year],
-        students: {
-          ...prev[year].students,
-          [division]: prev[year].students[division].filter(student => student.id !== studentId)
-        }
+  const handleDeleteStudent = async (year, division, studentId) => {
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/admin/students/${studentId}`);
+      if (response.status === 200) {
+        setData(prev => ({
+          ...prev,
+          [year]: {
+            ...prev[year],
+            students: {
+              ...prev[year].students,
+              [division]: prev[year].students[division].filter(student => student.id !== studentId)
+            }
+          }
+        }));
       }
-    }));
+    } catch (error) {
+      console.error('Error deleting student:', error);
+      alert('Error deleting student');
+    }
   };
 
   const handleGeneratePDF = (year, division) => {
@@ -329,7 +310,6 @@ const Student = () => {
           </div>
         </div>
       </div>
-
       {/* Main Content */}
       <div className={styles.mainContent}>
         {Object.entries(data).map(([year, yearData]) => (
@@ -358,7 +338,6 @@ const Student = () => {
                 </div>
               </div>
             </div>
-
             {/* Year Content */}
             {openYear === year && (
               <div className={styles.yearContent}>
@@ -392,7 +371,6 @@ const Student = () => {
                           </div>
                         </div>
                       </div>
-
                       {/* Division Content */}
                       {openDivision[year] === division && (
                         <div className={styles.divisionContent}>
@@ -427,7 +405,6 @@ const Student = () => {
                               <span>{showStudents[`${year}-${division}`] ? 'Hide Students' : 'Show Students'}</span>
                             </button>
                           </div>
-
                           {/* Bulk Upload Modal */}
                           {showUploadModal === `${year}-${division}` && (
                             <div className={styles.uploadModal}>
@@ -443,7 +420,6 @@ const Student = () => {
                                   <X size={18} />
                                 </button>
                               </div>
-
                               <div className={styles.uploadModalContent}>
                                 <div className={styles.uploadInstructions}>
                                   <h5 className={styles.instructionsTitle}>File Format Instructions:</h5>
@@ -503,7 +479,6 @@ const Student = () => {
                               </div>
                             </div>
                           )}
-
                           {/* Add Student Form */}
                           {showForm === `${year}-${division}` && (
                             <div className={styles.formContainer}>
@@ -568,7 +543,6 @@ const Student = () => {
                               </div>
                             </div>
                           )}
-
                           {/* Student List */}
                           {showStudents[`${year}-${division}`] && (
                             <div className={styles.studentListContainer}>
@@ -636,7 +610,6 @@ const Student = () => {
           </div>
         ))}
       </div>
-
       {/* Footer */}
       <div className={styles.footer}>
         <div className={styles.footerContent}>

@@ -12,35 +12,38 @@ const Teacher = () => {
     name: '',
     subject: '',
     email: '',
+    abbreviation: '',
   });
 
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    fetchTeachers();
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user && user.id) {
+      fetchTeachersByAdmin(user.id);
+    }
   }, []);
 
-  const fetchTeachers = async () => {
+  const fetchTeachersByAdmin = async (adminId) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/teachers');
+      const response = await axios.get(`http://localhost:5000/api/teachers?admin_id=${adminId}`);
       setTeachers(response.data);
     } catch (error) {
       console.error('Failed to fetch teachers', error);
     }
   };
 
-  const getInitials = (name) => {
+  const generateAbbreviation = (name) => {
     return name
       .split(' ')
-      .map((part) => part[0])
-      .join('')
-      .toUpperCase();
+      .map(part => part[0].toUpperCase())
+      .join('');
   };
 
   const handleAdd = () => {
     setIsAdding(true);
     setIsEditing(false);
-    setFormData({ name: '', subject: '', email: '' });
+    setFormData({ name: '', subject: '', email: '', abbreviation: '' });
   };
 
   const handleEdit = (teacher) => {
@@ -54,8 +57,13 @@ const Teacher = () => {
     const confirmed = window.confirm('Are you sure you want to delete this teacher?');
     if (confirmed) {
       try {
+        // Optimistic UI update
+        setTeachers(prev => prev.filter(t => t.id !== id));
+
         await axios.delete(`http://localhost:5000/api/teachers/${id}`);
-        fetchTeachers();
+
+        // Refresh from backend to stay in sync
+        fetchTeachersByAdmin(user.id);
       } catch (error) {
         console.error('Error deleting teacher:', error);
       }
@@ -64,21 +72,37 @@ const Teacher = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
+
+    if (name === 'name') {
+      const newAbbreviation = generateAbbreviation(value);
+      setFormData(prev => ({
+        ...prev,
+        abbreviation: newAbbreviation,
+      }));
+    }
   };
+
+  const user = JSON.parse(localStorage.getItem('user')); // logged-in admin
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const payload = {
+        ...formData,
+        admin_id: user.id // send admin_id
+      };
+
       if (isEditing) {
-        await axios.put(`http://localhost:5000/api/teachers/${currentTeacher.id}`, formData);
+        await axios.put(`http://localhost:5000/api/teachers/${currentTeacher.id}`, payload);
       } else {
-        await axios.post('http://localhost:5000/api/teachers', formData);
+        await axios.post('http://localhost:5000/api/teachers', payload);
       }
-      fetchTeachers();
+
+      fetchTeachersByAdmin(user.id); // refresh list
       resetForm();
     } catch (error) {
       console.error('Error saving teacher:', error);
@@ -93,6 +117,7 @@ const Teacher = () => {
       name: '',
       subject: '',
       email: '',
+      abbreviation: '',
     });
   };
 
@@ -103,18 +128,20 @@ const Teacher = () => {
       reader.onload = (event) => {
         const content = event.target.result;
         const parsedData = parseFileContent(content);
-        setTeachers((prev) => [...prev, parsedData]);
+        setTeachers(prev => [...prev, parsedData]);
       };
       reader.readAsText(file);
     }
   };
 
   const parseFileContent = (content) => {
+    const defaultName = 'Uploaded Teacher';
     return {
-      id: Math.max(0, ...teachers.map((t) => t.id)) + 1,
-      name: 'Uploaded Teacher',
+      id: Math.max(0, ...teachers.map(t => t.id)) + 1,
+      name: defaultName,
       subject: 'Unknown',
       email: 'uploaded@eduadmin.com',
+      abbreviation: generateAbbreviation(defaultName),
     };
   };
 
@@ -130,7 +157,7 @@ const Teacher = () => {
       reader.onload = (event) => {
         const content = event.target.result;
         const parsedData = parseFileContent(content);
-        setTeachers((prev) => [...prev, parsedData]);
+        setTeachers(prev => [...prev, parsedData]);
       };
       reader.readAsText(file);
     }
@@ -143,7 +170,7 @@ const Teacher = () => {
           <Users size={28} className={styles.titleIcon} />
           Teachers Management
         </h2>
-        <div>
+        <div className={styles.buttonGroup}>
           <button className={styles.addBtn} onClick={handleAdd}>
             <Plus size={24} className={styles.btnIcon} />
             Add Teacher
@@ -162,7 +189,7 @@ const Teacher = () => {
         </div>
       </div>
       {(isAdding || isEditing) && (
-        <div className={`${styles.formContainer} ${isAdding ? styles.formSlideIn : ''} ${isEditing ? styles.formFadeIn : ''}`}>
+        <div className={styles.formContainer}>
           <h3 className={styles.formTitle}>
             {isEditing ? 'Edit Teacher Details' : 'Add New Teacher'}
           </h3>
@@ -177,6 +204,18 @@ const Teacher = () => {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
+                className={styles.formInput}
+              />
+            </div>
+            <div className={styles.inputGroup}>
+              <label htmlFor="abbreviation">Abbreviation</label>
+              <input
+                type="text"
+                id="abbreviation"
+                name="abbreviation"
+                value={formData.abbreviation}
+                onChange={handleInputChange}
+                readOnly
                 className={styles.formInput}
               />
             </div>
@@ -207,8 +246,8 @@ const Teacher = () => {
               />
             </div>
             <div className={styles.formActions}>
-              <button type="submit" className={`${styles.submitBtn} ${isEditing ? styles.updateBtn : ''}`}>
-                {isEditing ? 'Update Teacher' : 'Add'}
+              <button type="submit" className={styles.submitBtn}>
+                {isEditing ? 'Update Teacher' : 'Add Teacher'}
               </button>
               <button type="button" className={styles.cancelBtn} onClick={resetForm}>
                 Cancel
@@ -219,13 +258,16 @@ const Teacher = () => {
       )}
       <div className={styles.teachersList} onDragOver={handleDragOver} onDrop={handleDrop}>
         {teachers.map((teacher) => (
-          <div key={teacher.id} className={`${styles.teacherCard} ${styles.cardHover}`}>
+          <div key={teacher.id} className={styles.teacherCard}>
             <div className={styles.teacherInfo}>
               <div className={styles.avatar} style={{ backgroundColor: getRandomColor() }}>
                 {getInitials(teacher.name)}
               </div>
               <div className={styles.teacherDetails}>
-                <h3 className={styles.teacherName}>{teacher.name}</h3>
+                <h2 className={styles.teacherAbbreviation}>
+                  {teacher.abbreviation}
+                </h2>
+                <h4 className={styles.teacherName}>{teacher.name}</h4>
                 <p className={styles.teacherSubject}>
                   <span className={styles.subjectBadge}>{teacher.subject}</span>
                 </p>
@@ -236,10 +278,10 @@ const Teacher = () => {
             </div>
             <div className={styles.actions}>
               <button className={styles.editBtn} onClick={() => handleEdit(teacher)} aria-label="Edit teacher">
-                <Edit3 size={30} className={styles.actionIcon} />
+                <Edit3 size={25} className={styles.actionIcon} />
               </button>
               <button className={styles.deleteBtn} onClick={() => handleDelete(teacher.id)} aria-label="Delete teacher">
-                <Trash2 size={30} className={styles.actionIcon} />
+                <Trash2 size={25} className={styles.actionIcon} />
               </button>
             </div>
           </div>
@@ -252,6 +294,14 @@ const Teacher = () => {
 const getRandomColor = () => {
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1'];
   return colors[Math.floor(Math.random() * colors.length)];
+};
+
+const getInitials = (name) => {
+  return name
+    .split(' ')
+    .map(part => part[0])
+    .join('')
+    .toUpperCase();
 };
 
 export default Teacher;

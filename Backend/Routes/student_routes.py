@@ -6,10 +6,15 @@ student_bp = Blueprint('student', __name__, url_prefix='/api/admin')
 # ---------------------- GET Students ----------------------
 @student_bp.route('/students', methods=['GET'])
 def get_students():
+    admin_id = request.args.get('admin_id')  # 🔹 Required for filtering
     year = request.args.get('year')
     division = request.args.get('division')
-    query = "SELECT * FROM students"
-    filters, params = [], []
+
+    if not admin_id:
+        return jsonify({"error": "admin_id is required"}), 400
+
+    query = "SELECT * FROM students WHERE admin_id = %s"
+    filters, params = [], [admin_id]
 
     if year:
         filters.append("year = %s")
@@ -19,7 +24,7 @@ def get_students():
         params.append(division)
 
     if filters:
-        query += " WHERE " + " AND ".join(filters)
+        query += " AND " + " AND ".join(filters)
 
     cur = current_app.mysql.connection.cursor(dictionary=True)
     cur.execute(query, tuple(params))
@@ -33,9 +38,9 @@ def get_students():
 @student_bp.route('/students', methods=['POST'])
 def add_student():
     data = request.json
-    print("Received data:", data)  # Debug log
+    print("Received data:", data)
 
-    required_fields = ['rollNo', 'name', 'prn', 'year', 'division']
+    required_fields = ['rollNo', 'name', 'prn', 'year', 'division', 'admin_id']
     if not all(key in data for key in required_fields):
         missing_fields = [field for field in required_fields if field not in data]
         return jsonify({"error": f"Missing required fields: {missing_fields}"}), 400
@@ -43,8 +48,8 @@ def add_student():
     try:
         cur = current_app.mysql.connection.cursor()
         cur.execute(
-            "INSERT INTO students (roll_no, name, prn, year, division) VALUES (%s, %s, %s, %s, %s)",
-            (data['rollNo'], data['name'], data['prn'], data['year'], data['division'])
+            "INSERT INTO students (roll_no, name, prn, year, division, admin_id) VALUES (%s, %s, %s, %s, %s, %s)",
+            (data['rollNo'], data['name'], data['prn'], data['year'], data['division'], data['admin_id'])
         )
         current_app.mysql.connection.commit()
         return jsonify({"message": "Student added successfully"}), 201
@@ -64,6 +69,10 @@ def bulk_upload_students():
     file = request.files['file']
     year = request.form.get('year')
     division = request.form.get('division')
+    admin_id = request.form.get('admin_id')
+
+    if not admin_id:
+        return jsonify({"error": "admin_id is required"}), 400
 
     if not file.filename.endswith('.txt'):
         return jsonify({"error": "Only TXT files are supported"}), 400
@@ -81,8 +90,8 @@ def bulk_upload_students():
             if len(parts) == 3:
                 roll_no, name, prn = parts
                 cur.execute(
-                    "INSERT INTO students (roll_no, name, prn, year, division) VALUES (%s, %s, %s, %s, %s)",
-                    (roll_no.strip(), name.strip(), prn.strip(), year, division)
+                    "INSERT INTO students (roll_no, name, prn, year, division, admin_id) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (roll_no.strip(), name.strip(), prn.strip(), year, division, admin_id)
                 )
         current_app.mysql.connection.commit()
         return jsonify({"message": "Bulk upload successful"}), 201
@@ -96,9 +105,17 @@ def bulk_upload_students():
 # ---------------------- Delete Student ----------------------
 @student_bp.route('/students/<int:student_id>', methods=['DELETE'])
 def delete_student(student_id):
+    admin_id = request.args.get('admin_id')
+    if not admin_id:
+        return jsonify({"error": "admin_id is required"}), 400
+
     try:
         cur = current_app.mysql.connection.cursor()
-        cur.execute("DELETE FROM students WHERE id = %s", (student_id,))
+        cur.execute("SELECT id FROM students WHERE id = %s AND admin_id = %s", (student_id, admin_id))
+        if not cur.fetchone():
+            return jsonify({"error": "Student not found or not authorized"}), 404
+
+        cur.execute("DELETE FROM students WHERE id = %s AND admin_id = %s", (student_id, admin_id))
         current_app.mysql.connection.commit()
         return jsonify({"message": "Student deleted successfully"}), 200
     except Exception as e:

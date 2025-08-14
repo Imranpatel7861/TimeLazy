@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './Setting.module.css';
-import ForgotPassword from '../../../ForgotPassword';
-
 
 const Setting = () => {
   const [formData, setFormData] = useState({
@@ -19,9 +17,47 @@ const Setting = () => {
 
   const navigate = useNavigate();
 
+  // ✅ Load current profile on mount
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('userEmail');
+    if (storedEmail) {
+      axios
+        .get(`http://localhost:5000/api/profile?email=${storedEmail}`)
+        .then((res) => {
+          if (res.data) {
+            setFormData((prev) => ({
+              ...prev,
+              name: res.data.name || '',
+              email: res.data.email || '',
+              gender: res.data.gender || '',
+              organization: res.data.organization || '',
+              phone: res.data.phone || '',
+              address: res.data.address || '',
+              profilePicURL: res.data.profile_pic || 'https://via.placeholder.com/100',
+            }));
+
+            // Store latest in localStorage for Admindash
+            if (res.data.profile_pic) {
+              localStorage.setItem('profileImage', res.data.profile_pic);
+            }
+            if (res.data.name) {
+              localStorage.setItem('userName', res.data.name);
+            }
+            if (res.data.email) {
+              localStorage.setItem('userEmail', res.data.email);
+            }
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to fetch profile:', err);
+        });
+    }
+  }, []);
+
   const handleChangePasswordClick = () => {
     navigate('/ForgotPassword');
-  }
+  };
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === 'profilePhoto') {
@@ -56,12 +92,19 @@ const Setting = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/profile', payload, {
+      const res = await axios.post('http://localhost:5000/api/profile', payload, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       alert('Changes saved!');
+
+      // ✅ Update localStorage instantly for Admindash
+      if (res.data && res.data.profile_pic) {
+        localStorage.setItem('profileImage', res.data.profile_pic);
+      }
+      localStorage.setItem('userName', formData.name);
+      localStorage.setItem('userEmail', formData.email);
     } catch (err) {
       console.error('Profile update failed:', err);
       alert('Failed to save changes.');
@@ -147,25 +190,17 @@ const Setting = () => {
           />
         </div>
 
-       {/* <div className={styles.inputGroup}>
-          <label>Address</label>
-          <textarea
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="Enter address"
-            className={styles.input}
-            rows={3}
-          />
-        </div> */}
-
         <div className={styles.buttonRow}>
           <button type="submit" className={styles.saveBtn}>
             Save Changes
           </button>
-           <button type="button" className={styles.passwordBtn} onClick={handleChangePasswordClick}>
-      Change Password
-    </button>
+          <button
+            type="button"
+            className={styles.passwordBtn}
+            onClick={handleChangePasswordClick}
+          >
+            Change Password
+          </button>
         </div>
       </form>
     </div>
@@ -173,4 +208,3 @@ const Setting = () => {
 };
 
 export default Setting;
- 

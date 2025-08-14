@@ -1,158 +1,165 @@
-.container {
+/* Classes.module.css */
+.animatedBackground {
+  min-height: 100vh;
+  background-color: #ffffff;
+  font-family: 'Inter', sans-serif;
   padding: 2rem;
-  max-width: 800px;
-  margin: auto;
-  font-family: 'Poppins', sans-serif;
-  animation: fadeIn 1s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  background: transparent;
+}
+
+/* Title */
 .title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 2.5rem;
-  color: #1f2937;
-  animation: slideIn 0.5s ease-out;
+  font-size: 3.0rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+margin-bottom: 4rem;
+  text-align: center;
+  background: linear-gradient(90deg, #0073ff, #4817de);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+/* Input row */
 .inputRow {
   display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-  animation: slideIn 0.7s ease-out;
+  gap: 250px;
+  margin-bottom: 5rem;
+  margin-left:350px;
+ 
 }
 
 .input {
   flex: 1;
-  padding: 0.6rem 1rem;
-  font-size: 2rem;
-  border: 1px solid #d1d5db;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  border: 1px solid #374151;
   border-radius: 0.5rem;
-  font-family: 'Poppins', sans-serif;
-  transition: border-color 0.3s ease;
+  background-color: #111827;
+  color: #ffffff;
+  outline: none;
+  transition: all 0.3s ease;
 }
 
 .input:focus {
-  border-color: #10b981;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
 .addBtn {
-  width: 120px;
-  height: 65px;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  background: #10b981;
+  padding: 0.875rem 2.5rem;
+  background-color: #4f46e5;
   color: white;
-  padding: 0.6rem 1rem;
+  font-weight: 600;
   border: none;
   border-radius: 0.5rem;
-  font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+position: relative;
+left: -200px;
 }
 
 .addBtn:hover {
-  background: #059669;
-  transform: scale(1.05);
+  background-color: #4338ca;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
+/* Error message */
 .error {
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
   color: #ef4444;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
   margin-bottom: 1rem;
-  font-weight: 700;
-  animation: shake 0.5s ease-out;
 }
 
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  font-size: 1.25rem;
+  color: #9ca3af;
+}
+
+/* Grid layout for classrooms */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
+/* Classroom card */
 .card {
-  height: 200px;
-  width: 200px;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-left: 5px solid #10b981;
+  background-color: #111827;
+  border: 1px solid #374151;
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 1.5rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  animation: fadeIn 0.5s ease-out, slideUp 0.5s ease-out;
+  justify-content: space-between;
+  transition: all 0.2s ease-in-out;
 }
 
+.card:hover {
+  transform: translateY(-5px);
+  border-color: #60a5fa;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Room info */
 .classInfo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-weight: 500;
-  font-size: 2rem;
-  color: #111827;
-}
-
-.roomText {
+  gap: 0.75rem;
+  color: #e5e7eb;
+  font-size: 1.25rem;
   font-weight: 600;
 }
 
+.roomText {
+  flex-grow: 1;
+}
+
+/* Delete button */
 .deleteBtn {
-  background: transparent;
-  color: #ef4444;
+  background-color: #374151;
   border: none;
+  color: #ef4444;
   cursor: pointer;
-  padding: 0.25rem;
-  margin-bottom: -150px;
-  border-radius: 0.5rem;
-  transition: transform 0.2s ease, background 0.3s ease;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .deleteBtn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  transform: scale(1.2);
+  background-color: #4b5563;
+  color: #f87171;
 }
 
-/* Keyframes for animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+/* Responsive */
+@media (max-width: 768px) {
+  .inputRow {
+    flex-direction: column;
   }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes shake {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  20%, 60% {
-    transform: translateX(-10px);
-  }
-  40%, 80% {
-    transform: translateX(10px);
+  .addBtn {
+    width: 100%;
+    justify-content: center;
   }
 }
