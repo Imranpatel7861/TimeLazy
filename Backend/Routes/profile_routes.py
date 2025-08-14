@@ -1,28 +1,29 @@
-from flask import Blueprint, request, jsonify
-from db import mysql
+from flask import Blueprint, request, jsonify, current_app
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/api')
 
 @profile_bp.route('/profile', methods=['GET'])
 def get_profile():
     email = request.args.get('email')
+
     if not email:
         return jsonify({'error': 'Email is required'}), 400
 
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT name, email, gender, organization, phone, address, profile_pic FROM user_profiles WHERE email = %s", (email,))
-    user = cur.fetchone()
+    cur = current_app.mysql.connection.cursor()
+    cur.execute(
+        "SELECT name, email, profile_pic FROM personal_users WHERE email = %s LIMIT 1",
+        (email,)
+    )
+    row = cur.fetchone()
     cur.close()
 
-    if not user:
-        return jsonify({'message': 'Profile not found'}), 404
+    if not row:
+        return jsonify({'error': 'User not found'}), 404
 
-    return jsonify({
-        'name': user[0],
-        'email': user[1],
-        'gender': user[2],
-        'organization': user[3],
-        'phone': user[4],
-        'address': user[5],
-        'profile_pic': user[6]
-    }), 200
+    profile_data = {
+        'name': row[0],
+        'email': row[1],
+        'profile_pic': row[2]  # e.g., filename or full URL
+    }
+
+    return jsonify(profile_data), 200

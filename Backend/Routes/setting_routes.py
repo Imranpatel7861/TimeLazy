@@ -1,14 +1,40 @@
 from flask import Blueprint, request, jsonify
+import os
 
 setting_bp = Blueprint('setting', __name__, url_prefix='/api')
 
-@setting_bp.route('/settings', methods=['GET'])
-def get_settings():
-    # Example static config
-    return jsonify({'theme':'light','notifications':True}),200
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@setting_bp.route('/settings', methods=['POST'])
-def update_settings():
-    data = request.get_json()
-    # Save settings to DB if needed
-    return jsonify({'message':'Settings updated','data':data}),200
+@setting_bp.route('/profile', methods=['POST'])
+def update_profile():
+    try:
+        name = request.form.get('name')
+        email = request.form.get('email')
+        gender = request.form.get('gender')
+        organization = request.form.get('organization')
+        phone = request.form.get('phone')
+        address = request.form.get('address')
+
+        profile_pic = request.files.get('profilePic')
+        profile_pic_filename = None
+
+        if profile_pic:
+            profile_pic_filename = profile_pic.filename
+            save_path = os.path.join(UPLOAD_FOLDER, profile_pic_filename)
+            profile_pic.save(save_path)
+
+        return jsonify({
+            "message": "Profile updated successfully",
+            "data": {
+                "name": name,
+                "email": email,
+                "gender": gender,
+                "organization": organization,
+                "phone": phone,
+                "address": address,
+                "profilePic": profile_pic_filename
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
