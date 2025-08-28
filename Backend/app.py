@@ -41,6 +41,9 @@ from Routes.setting_routes import setting_bp
 from Routes.password_routes import password_bp
 from Routes.student_routes import student_bp  # ✅ student route for form submission
 from Routes.contact_routes import contact_bp
+from Routes.solver_routes import solver_bp
+
+
 
 # Register all Blueprints
 app.register_blueprint(auth_bp)
@@ -53,6 +56,8 @@ app.register_blueprint(setting_bp)
 app.register_blueprint(password_bp)
 app.register_blueprint(student_bp) 
 app.register_blueprint(contact_bp)
+app.register_blueprint(solver_bp)
+
 
 # Health check route
 @app.route('/')

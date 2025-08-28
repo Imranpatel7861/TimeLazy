@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { Download, CalendarDays, Users, Building2, Plus, Trash2, User, BookOpen, GraduationCap, FileText, Upload, Eye, EyeOff, UploadCloud, File, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { Download, CalendarDays, Users, Building2, UploadCloud, File, AlertCircle, CheckCircle, X, Eye, EyeOff, GraduationCap, BookOpen, FileText, Trash2 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import styles from './Student.module.css';
 
@@ -38,23 +38,36 @@ const Student = () => {
   const [data, setData] = useState(initialData);
   const [openYear, setOpenYear] = useState(null);
   const [openDivision, setOpenDivision] = useState({});
-  const [showForm, setShowForm] = useState(null);
   const [showStudents, setShowStudents] = useState({});
   const [showUploadModal, setShowUploadModal] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(null);
   const fileInputRef = useRef(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    rollNo: '',
-    prn: '',
-    file: null
-  });
+
+  const fetchStudents = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/admin/students');
+      const studentsData = response.data;
+      const organizedData = JSON.parse(JSON.stringify(initialData));
+
+      studentsData.forEach(student => {
+        if (organizedData[student.year] && organizedData[student.year].students[student.division]) {
+          organizedData[student.year].students[student.division].push(student);
+        }
+      });
+
+      setData(organizedData);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
   const toggleYear = (year) => {
     setOpenYear(openYear === year ? null : year);
     setOpenDivision({});
-    setShowForm(null);
-    setShowStudents({});
     setShowUploadModal(null);
   };
 
@@ -63,26 +76,12 @@ const Student = () => {
       ...prev,
       [year]: prev[year] === division ? null : division
     }));
-    setShowForm(null);
     setShowUploadModal(null);
-  };
-
-  const toggleForm = (year, division) => {
-    const formKey = `${year}-${division}`;
-    setShowForm(showForm === formKey ? null : formKey);
-    setShowUploadModal(null);
-    setFormData({
-      name: '',
-      rollNo: '',
-      prn: '',
-      file: null
-    });
   };
 
   const toggleUploadModal = (year, division) => {
     const uploadKey = `${year}-${division}`;
     setShowUploadModal(showUploadModal === uploadKey ? null : uploadKey);
-    setShowForm(null);
     setUploadProgress(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -97,120 +96,31 @@ const Student = () => {
     }));
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value
-    }));
-  };
-
-  const handleFormSubmit = async () => {
-    if (!formData.name || !formData.rollNo || !formData.prn) {
-      alert('Please fill all required fields');
-      return;
-    }
-    const [year, division] = showForm.split('-');
-    const newStudent = {
-      id: Date.now(),
-      rollNo: formData.rollNo,
-      name: formData.name,
-      prn: formData.prn,
-      year: year,
-      division: division
-    };
-    try {
-      const response = await axios.post('http://localhost:5000/api/admin/students', newStudent);
-      if (response.status === 201) {
-        alert(`Student added to ${year} - ${division}`);
-        setData(prevData => ({
-          ...prevData,
-          [year]: {
-            ...prevData[year],
-            students: {
-              ...prevData[year].students,
-              [division]: [...prevData[year].students[division], newStudent]
-            }
-          }
-        }));
-        setShowForm(null);
-        setFormData({
-          name: '',
-          rollNo: '',
-          prn: '',
-          file: null
-        });
-      }
-    } catch (error) {
-      console.error('Error adding student:', error);
-      alert('Error adding student');
-    }
-  };
-
-  const parseTextFile = (text) => {
-    const lines = text.split('\n').filter(line => line.trim());
-    const students = [];
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-      if (line.includes(',')) {
-        const parts = line.split(',').map(p => p.trim());
-        if (parts.length >= 3) {
-          students.push({
-            id: Date.now() + i,
-            name: parts[0],
-            rollNo: parts[1],
-            prn: parts[2],
-            file: null
-          });
-        }
-      } else if (line.includes('|')) {
-        const parts = line.split('|').map(p => p.trim());
-        if (parts.length >= 3) {
-          students.push({
-            id: Date.now() + i,
-            name: parts[0],
-            rollNo: parts[1],
-            prn: parts[2],
-            file: null
-          });
-        }
-      } else if (line.includes('\t')) {
-        const parts = line.split('\t').map(p => p.trim());
-        if (parts.length >= 3) {
-          students.push({
-            id: Date.now() + i,
-            name: parts[0],
-            rollNo: parts[1],
-            prn: parts[2],
-            file: null
-          });
-        }
-      }
-    }
-    return students;
-  };
-
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
     const [year, division] = showUploadModal.split('-');
     setUploadProgress({ status: 'processing', message: 'Processing file...' });
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('year', year);
     formData.append('division', division);
+
     try {
       const response = await axios.post('http://localhost:5000/api/admin/students/bulk', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
+
       if (response.status === 201) {
         setUploadProgress({
           status: 'success',
           message: `Successfully uploaded students!`
         });
+
+        await fetchStudents();
         setTimeout(() => {
           setShowUploadModal(null);
           setUploadProgress(null);
@@ -232,16 +142,7 @@ const Student = () => {
     try {
       const response = await axios.delete(`http://localhost:5000/api/admin/students/${studentId}`);
       if (response.status === 200) {
-        setData(prev => ({
-          ...prev,
-          [year]: {
-            ...prev[year],
-            students: {
-              ...prev[year].students,
-              [division]: prev[year].students[division].filter(student => student.id !== studentId)
-            }
-          }
-        }));
+        await fetchStudents();
       }
     } catch (error) {
       console.error('Error deleting student:', error);
@@ -256,7 +157,7 @@ const Student = () => {
     students.forEach((student, index) => {
       const y = 20 + (index * 15);
       doc.text(`${index + 1}. Name: ${student.name}`, 10, y);
-      doc.text(`   Roll No: ${student.rollNo}`, 10, y + 5);
+      doc.text(`   Roll No: ${student.rollNo || student.roll_no}`, 10, y + 5);
       doc.text(`   PRN: ${student.prn}`, 10, y + 10);
     });
     doc.save(`${year}_${division}_students.pdf`);
@@ -264,7 +165,6 @@ const Student = () => {
 
   const getYearColor = (year) => {
     const colors = {
-      'FE': styles.feGradient,
       'SE': styles.seGradient,
       'TE': styles.teGradient,
       'BE': styles.beGradient
@@ -274,7 +174,6 @@ const Student = () => {
 
   const getYearIcon = (year) => {
     const icons = {
-      'FE': <BookOpen size={24} />,
       'SE': <Users size={24} />,
       'TE': <FileText size={24} />,
       'BE': <GraduationCap size={24} />
@@ -310,6 +209,7 @@ const Student = () => {
           </div>
         </div>
       </div>
+
       {/* Main Content */}
       <div className={styles.mainContent}>
         {Object.entries(data).map(([year, yearData]) => (
@@ -318,6 +218,9 @@ const Student = () => {
             <div
               className={`${styles.yearHeader} ${getYearColor(year)}`}
               onClick={() => toggleYear(year)}
+              aria-expanded={openYear === year}
+              role="button"
+              tabIndex="0"
             >
               <div className={styles.yearHeaderContent}>
                 <div className={styles.yearIcon}>
@@ -338,6 +241,7 @@ const Student = () => {
                 </div>
               </div>
             </div>
+
             {/* Year Content */}
             {openYear === year && (
               <div className={styles.yearContent}>
@@ -348,6 +252,9 @@ const Student = () => {
                       <div
                         className={styles.divisionHeader}
                         onClick={() => toggleDivision(year, division)}
+                        aria-expanded={openDivision[year] === division}
+                        role="button"
+                        tabIndex="0"
                       >
                         <div className={styles.divisionHeaderContent}>
                           <div className={styles.divisionIcon}>
@@ -371,6 +278,7 @@ const Student = () => {
                           </div>
                         </div>
                       </div>
+
                       {/* Division Content */}
                       {openDivision[year] === division && (
                         <div className={styles.divisionContent}>
@@ -379,43 +287,41 @@ const Student = () => {
                             <button
                               className={`${styles.actionButton} ${styles.downloadButton}`}
                               onClick={() => handleGeneratePDF(year, division)}
+                              aria-label={`Generate PDF for ${year} ${division}`}
                             >
                               <Download size={18} />
                               <span>Generate PDF</span>
                             </button>
                             <button
-                              className={`${styles.actionButton} ${styles.addButton}`}
-                              onClick={() => toggleForm(year, division)}
-                            >
-                              <Plus size={18} />
-                              <span>Add Student</span>
-                            </button>
-                            <button
                               className={`${styles.actionButton} ${styles.uploadButton}`}
                               onClick={() => toggleUploadModal(year, division)}
+                              aria-label={`Bulk upload students to ${year} ${division}`}
                             >
                               <UploadCloud size={18} />
-                              <span>Bulk Upload</span>
+                              <span>Upload PDF</span>
                             </button>
                             <button
                               className={`${styles.actionButton} ${styles.showButton}`}
                               onClick={() => toggleStudentList(year, division)}
+                              aria-label={`Show students in ${year} ${division}`}
                             >
                               {showStudents[`${year}-${division}`] ? <EyeOff size={18} /> : <Eye size={18} />}
                               <span>{showStudents[`${year}-${division}`] ? 'Hide Students' : 'Show Students'}</span>
                             </button>
                           </div>
+
                           {/* Bulk Upload Modal */}
                           {showUploadModal === `${year}-${division}` && (
                             <div className={styles.uploadModal}>
                               <div className={styles.uploadModalHeader}>
                                 <h4 className={styles.uploadModalTitle}>
                                   <UploadCloud className={styles.uploadModalIcon} size={20} />
-                                  <span>Bulk Upload Students to {division}</span>
+                                  <span>Upload PDF for {division}</span>
                                 </h4>
                                 <button
                                   className={styles.uploadModalClose}
                                   onClick={() => toggleUploadModal(year, division)}
+                                  aria-label="Close upload modal"
                                 >
                                   <X size={18} />
                                 </button>
@@ -425,24 +331,10 @@ const Student = () => {
                                   <h5 className={styles.instructionsTitle}>File Format Instructions:</h5>
                                   <div className={styles.formatList}>
                                     <div className={styles.formatItem}>
-                                      <File className={styles.formatIcon} size={16} />
-                                      <div>
-                                        <strong>Text File (.txt)</strong>
-                                        <p>Format: Name, RollNo, PRN (comma separated) or Name | RollNo | PRN</p>
-                                      </div>
-                                    </div>
-                                    <div className={styles.formatItem}>
                                       <FileText className={styles.formatIcon} size={16} />
                                       <div>
                                         <strong>PDF File (.pdf)</strong>
-                                        <p>Convert to text format for processing</p>
-                                      </div>
-                                    </div>
-                                    <div className={styles.formatItem}>
-                                      <FileText className={styles.formatIcon} size={16} />
-                                      <div>
-                                        <strong>Word Document (.doc, .docx)</strong>
-                                        <p>Convert to text format for processing</p>
+                                        <p>Upload a PDF containing student details. The backend will extract and store the data.</p>
                                       </div>
                                     </div>
                                   </div>
@@ -452,7 +344,7 @@ const Student = () => {
                                     type="file"
                                     ref={fileInputRef}
                                     onChange={handleFileUpload}
-                                    accept=".txt,.pdf,.doc,.docx"
+                                    accept=".pdf"
                                     className={styles.uploadInput}
                                     id={`upload-${year}-${division}`}
                                   />
@@ -461,15 +353,15 @@ const Student = () => {
                                     className={styles.uploadLabel}
                                   >
                                     <UploadCloud size={24} />
-                                    <span>Choose File or Drag & Drop</span>
-                                    <small>Supported formats: TXT, PDF, DOC, DOCX</small>
+                                    <span>Choose PDF File or Drag & Drop</span>
+                                    <small>Supported format: PDF</small>
                                   </label>
                                 </div>
                                 {/* Upload Progress */}
                                 {uploadProgress && (
                                   <div className={`${styles.uploadProgress} ${styles[uploadProgress.status]}`}>
                                     <div className={styles.progressIcon}>
-                                      {uploadProgress.status === 'processing' && <Upload size={20} />}
+                                      {uploadProgress.status === 'processing' && <UploadCloud size={20} />}
                                       {uploadProgress.status === 'success' && <CheckCircle size={20} />}
                                       {uploadProgress.status === 'error' && <AlertCircle size={20} />}
                                     </div>
@@ -479,70 +371,7 @@ const Student = () => {
                               </div>
                             </div>
                           )}
-                          {/* Add Student Form */}
-                          {showForm === `${year}-${division}` && (
-                            <div className={styles.formContainer}>
-                              <h4 className={styles.formTitle}>
-                                <Plus className={styles.formTitleIcon} size={20} />
-                                <span>Add New Student to {division}</span>
-                              </h4>
-                              <div className={styles.formGrid}>
-                                <div className={styles.formGroup}>
-                                  <label className={styles.formLabel}>Full Name</label>
-                                  <input
-                                    type="text"
-                                    name="name"
-                                    placeholder="Enter student's full name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    className={styles.formInput}
-                                  />
-                                </div>
-                                <div className={styles.formGroup}>
-                                  <label className={styles.formLabel}>Roll Number</label>
-                                  <input
-                                    type="text"
-                                    name="rollNo"
-                                    placeholder="Enter roll number"
-                                    value={formData.rollNo}
-                                    onChange={handleInputChange}
-                                    className={styles.formInput}
-                                  />
-                                </div>
-                                <div className={styles.formGroup}>
-                                  <label className={styles.formLabel}>PRN Number</label>
-                                  <input
-                                    type="text"
-                                    name="prn"
-                                    placeholder="Enter PRN number"
-                                    value={formData.prn}
-                                    onChange={handleInputChange}
-                                    className={styles.formInput}
-                                  />
-                                </div>
-                                <div className={styles.formGroup}>
-                                  <label className={styles.formLabel}>Upload Document</label>
-                                  <div>
-                                    <input
-                                      type="file"
-                                      name="file"
-                                      onChange={handleInputChange}
-                                      className={styles.formFileInput}
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                              <div className={styles.formActions}>
-                                <button
-                                  onClick={handleFormSubmit}
-                                  className={styles.submitButton}
-                                >
-                                  <Upload size={18} />
-                                  <span>Add Student</span>
-                                </button>
-                              </div>
-                            </div>
-                          )}
+
                           {/* Student List */}
                           {showStudents[`${year}-${division}`] && (
                             <div className={styles.studentListContainer}>
@@ -559,7 +388,7 @@ const Student = () => {
                                     <Users className={styles.emptyIconSvg} size={32} />
                                   </div>
                                   <p className={styles.emptyText}>No students added yet</p>
-                                  <p className={styles.emptySubtext}>Click "Add Student" or "Bulk Upload" to get started</p>
+                                  <p className={styles.emptySubtext}>Click "Upload PDF" to get started</p>
                                 </div>
                               ) : (
                                 <div className={styles.studentGrid}>
@@ -573,23 +402,18 @@ const Student = () => {
                                           <h5 className={styles.studentName}>{student.name}</h5>
                                           <div className={styles.studentDetails}>
                                             <span className={styles.studentDetailBadge}>
-                                              Roll: {student.rollNo}
+                                              Roll: {student.rollNo || student.roll_no}
                                             </span>
                                             <span className={styles.studentDetailBadge}>
                                               PRN: {student.prn}
                                             </span>
-                                            {student.file && (
-                                              <span className={styles.fileBadge}>
-                                                <FileText size={14} />
-                                                <span>{student.file}</span>
-                                              </span>
-                                            )}
                                           </div>
                                         </div>
                                       </div>
                                       <button
                                         onClick={() => handleDeleteStudent(year, division, student.id)}
                                         className={styles.deleteButton}
+                                        aria-label={`Delete student ${student.name}`}
                                       >
                                         <Trash2 size={16} />
                                         <span>Delete</span>
@@ -610,7 +434,7 @@ const Student = () => {
           </div>
         ))}
       </div>
-      {/* Footer */}
+
       <div className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerText}>
