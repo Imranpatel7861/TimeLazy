@@ -1,165 +1,230 @@
-/* Classes.module.css */
+/* Base Styles */
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --border: #e2e8f0;
+  --primary: #6366f1;
+  --danger: #ef4444;
+}
+
 .animatedBackground {
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--bg);
   font-family: 'Inter', sans-serif;
   padding: 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
 }
 
-/* Container */
 .container {
-  width: 100%;
-  max-width: 1200px;
-  background: transparent;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
 }
 
-/* Title */
 .title {
-  font-size: 3.0rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-margin-bottom: 4rem;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2rem;
   text-align: center;
-  background: linear-gradient(90deg, #0073ff, #4817de);
+  background: linear-gradient(90deg, var(--primary), #8b5cf6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Input row */
-.inputRow {
-  display: flex;
-  gap: 250px;
-  margin-bottom: 5rem;
-  margin-left:350px;
- 
-}
-
-.input {
-  flex: 1;
-  padding: 0.875rem 1.25rem;
-  font-size: 1rem;
-  border: 1px solid #374151;
-  border-radius: 0.5rem;
-  background-color: #111827;
-  color: #ffffff;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-.input:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
-}
-
-.addBtn {
-  padding: 0.875rem 2.5rem;
-  background-color: #4f46e5;
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: var(--primary);
   color: white;
-  font-weight: 600;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 50%;
+  font-size: 1.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-position: relative;
-left: -200px;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 100;
 }
 
-.addBtn:hover {
-  background-color: #4338ca;
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+.fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
 
-/* Error message */
-.error {
-  background-color: #fee2e2;
-  border: 1px solid #fca5a5;
-  color: #ef4444;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  font-size: 0.9rem;
+/* Input Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modalContent {
+  background: var(--card);
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modalInput {
+  width: 100%;
+  padding: 0.875rem 1rem;
   margin-bottom: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
-/* Loading */
-.loading {
-  text-align: center;
-  padding: 4rem 2rem;
-  font-size: 1.25rem;
-  color: #9ca3af;
+.modalInput:focus {
+  border-color: var(--primary);
 }
 
-/* Grid layout for classrooms */
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modalBtn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalBtnPrimary {
+  background: var(--primary);
+  color: white;
+}
+
+.modalBtnPrimary:hover {
+  background: #5856eb;
+}
+
+.modalBtnSecondary {
+  background: var(--border);
+  color: var(--text);
+}
+
+.modalBtnSecondary:hover {
+  background: #cbd5e1;
+}
+
+/* Classroom Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-/* Classroom card */
+/* Classroom Card */
 .card {
-  background-color: #111827;
-  border: 1px solid #374151;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .card:hover {
   transform: translateY(-5px);
-  border-color: #60a5fa;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Room info */
 .classInfo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: #e5e7eb;
-  font-size: 1.25rem;
-  font-weight: 600;
+  gap: 1rem;
 }
 
 .roomText {
-  flex-grow: 1;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
 }
 
-/* Delete button */
 .deleteBtn {
-  background-color: #374151;
+  background: var(--danger);
   border: none;
-  color: #ef4444;
-  cursor: pointer;
+  color: white;
   padding: 0.5rem;
   border-radius: 0.375rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .deleteBtn:hover {
-  background-color: #4b5563;
-  color: #f87171;
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 4rem;
+  color: #9ca3af;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Error and Loading */
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  color: #9ca3af;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .inputRow {
-    flex-direction: column;
+  .grid {
+    grid-template-columns: 1fr;
   }
-  .addBtn {
-    width: 100%;
-    justify-content: center;
+  .fab {
+    bottom: 1rem;
+    right: 1rem;
   }
 }

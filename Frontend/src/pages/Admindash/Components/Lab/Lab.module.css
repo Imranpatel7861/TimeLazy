@@ -1,125 +1,149 @@
-/* LabManager.module.css */
+/* Base Styles */
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #1e293b;
+  --border: #e2e8f0;
+  --primary: #6366f1;
+  --danger: #ef4444;
+  --success: #10b981;
+}
+
 .labManagerContainer {
   min-height: 100vh;
-  background-color: #ffffff;
-  color: #f3f4f6;
+  background-color: var(--bg);
   font-family: 'Inter', sans-serif;
   padding: 2rem;
-  transition: all 0.3s ease;
-  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* Typography and Header */
+/* Header */
 .header {
   text-align: center;
   margin-bottom: 3rem;
-  padding-top: 2rem;
   width: 100%;
 }
 
 .title {
   font-size: 2.5rem;
-  font-weight: 700;
-  letter-spacing: -0.05em;
+  font-weight: 800;
   margin: 0;
-  background: linear-gradient(90deg, #0073ff, #4817de);
+  background: linear-gradient(90deg, var(--primary), #8b5cf6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
   font-size: 1.125rem;
-  color: #9ca3af;
+  color: #64748b;
   margin-top: 0.5rem;
-  font-weight: 400;
 }
 
-/* Input Section */
-.inputArea {
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 3rem;
-}
-
-.inputGroup {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.input {
-  flex: 1;
-  padding: 0.875rem 1.25rem;
-  font-size: 1rem;
-  border: 1px solid #374151;
-  border-radius: 0.5rem;
-  background-color: #111827;
-  color: #f3f4f6;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-.input:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
-}
-
-.input::placeholder {
-  color: #fff;
-}
-
-.input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.addButton {
-  padding: 0.875rem 1.5rem;
-  background-color: #4f46e5;
+/* Floating Action Button */
+.fab {
+  position: fixed;
+  bottom: 55rem;
+  right: 35rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background: var(--primary);
   color: white;
-  font-weight: 600;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 50%;
+  font-size: 1.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 100;
 }
 
-.addButton:hover:not(:disabled) {
-  background-color: #4338ca;
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+.fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
 
-.addButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* Input Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
 }
 
-.addButtonText {
-  display: none;
+.modal.active {
+  opacity: 1;
+  pointer-events: all;
 }
 
-@media (min-width: 640px) {
-  .addButtonText {
-    display: inline;
-  }
+.modalContent {
+  background: var(--card);
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.errorBox {
-  background-color: #fee2e2;
-  border: 1px solid #fca5a5;
-  color: #ef4444;
-  padding: 0.75rem 1rem;
+.modalInput {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
-  font-weight: 500;
-  font-size: 0.9rem;
-  animation: fadeInDown 0.3s ease-out;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modalInput:focus {
+  border-color: var(--primary);
+}
+
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.modalBtn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modalBtnPrimary {
+  background: var(--primary);
+  color: white;
+}
+
+.modalBtnPrimary:hover {
+  background: #5856eb;
+}
+
+.modalBtnSecondary {
+  background: var(--border);
+  color: var(--text);
+}
+
+.modalBtnSecondary:hover {
+  background: #cbd5e1;
 }
 
 /* Content Area */
@@ -133,17 +157,18 @@
   text-align: center;
   padding: 4rem 2rem;
   font-size: 1.25rem;
-  color: #9ca3af;
+  color: #64748b;
 }
 
 /* Empty State */
 .emptyState {
   text-align: center;
   padding: 4rem 2rem;
-  background-color: #111827;
-  border: 2px dashed #4b5563;
-  border-radius: 1rem;
-  color: #9ca3af;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
   animation: fadeIn 0.8s ease-out;
 }
 
@@ -155,7 +180,6 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
-  color: #d1d5db;
 }
 
 .emptySubtitle {
@@ -163,96 +187,96 @@
   margin: 0;
 }
 
-/* Grid and Card Layout */
+/* Lab Grid */
 .labGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
+  margin-top: 2rem;
 }
 
+/* Lab Card */
 .labCard {
-  background-color: #111827;
-  border: 1px solid #374151;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 1.5rem;
-  transition: all 0.2s ease-in-out;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: space-between;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.5s ease-out;
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .labCard:hover {
   transform: translateY(-5px);
-  border-color: #60a5fa;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
 .cardHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
+  gap: 1rem;
 }
 
 .labIcon {
-  background-color: #374151;
-  color: #9ca3af;
+  background-color: #f3f4f6;
+  color: var(--primary);
   padding: 0.75rem;
   border-radius: 0.5rem;
   display: inline-flex;
 }
 
 .labNumber {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #e5e7eb;
+  color: var(--text);
   flex-grow: 1;
-  text-align: center;
+  padding-right: 85px;
+  padding-left: 10px;
 }
 
 .deleteButton {
-  background-color: #374151;
+  background-color: var(--danger);
   border: none;
-  color: #ef4444;
+  color: white;
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 0.375rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
 }
 
 .deleteButton:hover {
-  background-color: #4b5563;
-  color: #f87171;
+  background-color: #dc2626;
+  transform: scale(1.05);
 }
 
-.cardFooter {
-  border-top: 1px solid #374151;
-  padding-top: 1rem;
-}
-
-.statusIndicator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #9ca3af;
-  font-size: 0.875rem;
-}
-
-.statusDot {
-  width: 8px;
-  height: 8px;
-  background-color: #10b981;
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-.statusText {
+/* Error and Success Messages */
+.errorBox {
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
   font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  animation: fadeInDown 0.3s ease-out;
+}
+
+.successBox {
+  background-color: #dcfce7;
+  border: 1px solid #bbf7d0;
+  color: #059669;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  animation: fadeInDown 0.3s ease-out;
 }
 
 /* Animations */
@@ -266,32 +290,13 @@
   to { opacity: 1; }
 }
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.7; }
-}
-
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
-  .labManagerContainer {
-    padding: 1rem;
-  }
-  .title {
-    font-size: 2rem;
-  }
-  .inputGroup {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .addButton {
-    width: 100%;
-    justify-content: center;
-  }
   .labGrid {
     grid-template-columns: 1fr;
   }
-  .labNumber {
-    text-align: left;
-    margin-left: 1rem;
+  .fab {
+    bottom: 1rem;
+    right: 1rem;
   }
 }

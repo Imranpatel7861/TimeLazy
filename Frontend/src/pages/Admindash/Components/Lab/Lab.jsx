@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FlaskConical, Trash2, Plus, Upload, Beaker } from 'lucide-react';
+import { FlaskConical, Trash2, Plus, Beaker } from 'lucide-react';
 import axios from 'axios';
 import styles from './Lab.module.css';
 
@@ -9,8 +9,8 @@ const Lab = () => {
   const [newLab, setNewLab] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showModal, setShowModal] = useState(false);
   const fileInputRef = useRef(null);
-
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
@@ -44,6 +44,7 @@ const Lab = () => {
       await axios.post('http://localhost:5000/api/labs', payload);
       setSuccess(`Lab "${newLab}" added successfully.`);
       setNewLab('');
+      setShowModal(false);
       fetchLabsByAdmin(user.id);
     } catch (error) {
       console.error('Error adding lab:', error);
@@ -88,55 +89,13 @@ const Lab = () => {
 
   return (
     <div className={styles.labManagerContainer}>
-      <header className={styles.header}>
+      <div className={styles.header}>
         <h1 className={styles.title}>Laboratory Management</h1>
         <p className={styles.subtitle}>Streamlined lab space organization</p>
-      </header>
+      </div>
 
-      <section className={styles.inputArea}>
-        <div className={styles.inputGroup}>
-          <input
-            type="text"
-            value={newLab}
-            onChange={(e) => {
-              setNewLab(e.target.value);
-              setError('');
-              setSuccess('');
-            }}
-            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-            placeholder="Enter lab number (e.g., A101, B205)"
-            className={styles.input}
-            disabled={loading}
-          />
-          <button
-            onClick={handleAdd}
-            className={styles.addButton}
-            disabled={loading}
-          >
-            <Plus size={20} />
-            <span className={styles.addButtonText}>Add Laboratory</span>
-          </button>
-         
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={handleFileUpload}
-            accept=".pdf,.txt,.doc,.docx"
-          />
-        </div>
-
-        {error && (
-          <div className={styles.errorBox}>
-            <span>{error}</span>
-          </div>
-        )}
-        {success && (
-          <div className={styles.successBox}>
-            <span>{success}</span>
-          </div>
-        )}
-      </section>
+      {error && <div className={styles.errorBox}>{error}</div>}
+      {success && <div className={styles.successBox}>{success}</div>}
 
       <main className={styles.content}>
         {loading ? (
@@ -165,20 +124,61 @@ const Lab = () => {
                     onClick={() => handleDelete(lab.id, lab.lab_name)}
                     aria-label={`Delete laboratory ${lab.lab_name}`}
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={24} />
                   </button>
-                </div>
-                <div className={styles.cardFooter}>
-                  <span className={styles.statusIndicator}>
-                    <span className={styles.statusDot}></span>
-                    <span className={styles.statusText}>Operational</span>
-                  </span>
                 </div>
               </article>
             ))}
           </div>
         )}
       </main>
+
+      <button className={styles.fab} onClick={() => setShowModal(true)}>
+        <Plus size={24} />
+      </button>
+
+      <div className={`${styles.modal} ${showModal ? styles.active : ''}`}>
+        <div className={styles.modalContent}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--text)' }}>
+            Add Laboratory
+          </h3>
+          <input
+            type="text"
+            value={newLab}
+            onChange={(e) => {
+              setNewLab(e.target.value);
+              setError('');
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleAdd();
+            }}
+            placeholder="Enter lab number (e.g., A101, B205)"
+            className={styles.modalInput}
+          />
+          <div className={styles.modalButtons}>
+            <button
+              className={`${styles.modalBtn} ${styles.modalBtnSecondary}`}
+              onClick={() => setShowModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className={`${styles.modalBtn} ${styles.modalBtnPrimary}`}
+              onClick={handleAdd}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: 'none' }}
+        onChange={handleFileUpload}
+        accept=".pdf,.txt,.doc,.docx"
+      />
     </div>
   );
 };

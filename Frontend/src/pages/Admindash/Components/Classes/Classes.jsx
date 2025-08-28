@@ -8,8 +8,8 @@ const Classes = () => {
   const [newClassroom, setNewClassroom] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  // Safely parse logged-in user from localStorage
   let adminId = null;
   try {
     const storedUser = localStorage.getItem('user');
@@ -23,7 +23,6 @@ const Classes = () => {
 
   const API_BASE = 'http://localhost:5000/api/classrooms';
 
-  // Fetch classrooms for this admin
   const fetchClassrooms = async () => {
     if (!adminId) {
       setError('Admin ID is missing — please log in.');
@@ -48,32 +47,29 @@ const Classes = () => {
     fetchClassrooms();
   }, [adminId]);
 
-  // Add new classroom
   const handleAdd = async () => {
     if (!adminId) {
       setError('Cannot add classroom — Admin ID is missing.');
       return;
     }
-
     const trimmed = newClassroom.trim();
     if (!trimmed) {
       setError('Classroom number is required');
       setTimeout(() => setError(''), 3000);
       return;
     }
-
     if (classrooms.some(cls => String(cls.classroom_number) === trimmed)) {
       setError('Classroom already exists');
       setTimeout(() => setError(''), 3000);
       return;
     }
-
     try {
-      await axios.post(API_BASE, { 
+      await axios.post(API_BASE, {
         classroom_number: trimmed,
         admin_id: adminId
       });
       setNewClassroom('');
+      setShowModal(false);
       fetchClassrooms();
     } catch (err) {
       console.error(err);
@@ -81,13 +77,11 @@ const Classes = () => {
     }
   };
 
-  // Delete classroom
   const handleDelete = async (classroomId) => {
     if (!adminId) {
       setError('Cannot delete classroom — Admin ID is missing.');
       return;
     }
-
     try {
       await axios.delete(`${API_BASE}/${classroomId}`, {
         params: { admin_id: adminId }
@@ -103,8 +97,48 @@ const Classes = () => {
     <div className={styles.animatedBackground}>
       <div className={styles.container}>
         <h2 className={styles.title}>Classroom Management</h2>
+        {error && <div className={styles.error}>{error}</div>}
+        {loading ? (
+          <div className={styles.loading}>Loading classrooms...</div>
+        ) : classrooms.length === 0 ? (
+          <div className={styles.emptyState}>
+            <Building2 size={48} color="#9ca3af" />
+            <p>No classrooms found. Add one to get started.</p>
+          </div>
+        ) : (
+          <div className={styles.grid}>
+            {classrooms.map((classroom) => (
+              <div key={classroom.id} className={styles.card}>
+                <div className={styles.classInfo}>
+                  <Building2 size={24} color="#3b82f6" />
+                  <span className={styles.roomText}>
+                    Room {classroom.classroom_number}
+                  </span>
+                </div>
+                <button
+                  className={styles.deleteBtn}
+                  onClick={() => handleDelete(classroom.id)}
+                  aria-label={`Delete classroom ${classroom.classroom_number}`}
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
-        <div className={styles.inputRow}>
+      {/* Floating Action Button */}
+      <button className={styles.fab} onClick={() => setShowModal(true)}>
+        <Plus size={24} />
+      </button>
+
+      {/* Add Classroom Modal */}
+      <div className={`${styles.modal} ${showModal ? styles.active : ''}`}>
+        <div className={styles.modalContent}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--text)' }}>
+            Add Classroom
+          </h3>
           <input
             type="number"
             value={newClassroom}
@@ -115,49 +149,24 @@ const Classes = () => {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleAdd();
             }}
-            placeholder="Enter classroom number"
-            className={styles.input}
-            disabled={loading || !adminId}
+            placeholder="Classroom number"
+            className={styles.modalInput}
           />
-          <button 
-            onClick={handleAdd} 
-            className={styles.addBtn} 
-            disabled={loading || !adminId}
-          >
-            <Plus size={24} /> Add
-          </button>
+          <div className={styles.modalButtons}>
+            <button
+              className={`${styles.modalBtn} ${styles.modalBtnSecondary}`}
+              onClick={() => setShowModal(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className={`${styles.modalBtn} ${styles.modalBtnPrimary}`}
+              onClick={handleAdd}
+            >
+              Add
+            </button>
+          </div>
         </div>
-
-        {error && <div className={styles.error}>{error}</div>}
-
-        {loading ? (
-          <div className={styles.loading}>Loading classrooms...</div>
-        ) : classrooms.length === 0 ? (
-          <div className={styles.emptyState}>
-            <Building2 size={48} />
-            <p>No classrooms found. Add one to get started.</p>
-          </div>
-        ) : (
-          <div className={styles.grid}>
-            {classrooms.map((classroom) => (
-              <div key={classroom.id} className={styles.card}>
-                <div className={styles.classInfo}>
-                  <Building2 size={24} />
-                  <span className={styles.roomText}>
-                    Room {classroom.classroom_number}
-                  </span>
-                </div>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDelete(classroom.id)}
-                  aria-label={`Delete classroom ${classroom.classroom_number}`}
-                >
-                  <Trash2 size={20} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
