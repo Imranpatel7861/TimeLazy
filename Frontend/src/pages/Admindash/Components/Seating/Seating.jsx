@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -12,6 +12,8 @@ import {
   Clock
 } from 'lucide-react';
 import styles from './Seating.module.css';
+import pccoerLogoLeft from '../../../../assets/leftlogo.png';
+import pccoerLogoRight from '../../../../assets/rightlogo.png';
 
 const Seating = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -31,18 +33,41 @@ const Seating = () => {
   const [examDate, setExamDate] = useState('');
   const [examTimeFrom, setExamTimeFrom] = useState('');
   const [examTimeTo, setExamTimeTo] = useState('');
+  const [seatingMode, setSeatingMode] = useState("one");
+  const [allClassrooms, setAllClassrooms] = useState([]);
+  const [supervisors, setSupervisors] = useState([]);
 
-  // Helper function to format roll number
+  // Fetch supervisors and classrooms from backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [supervisorsResponse, classroomsResponse] = await Promise.all([
+          fetch('http://localhost:5000/api/supervisors'),
+          fetch('http://localhost:5000/api/classrooms')
+        ]);
+
+        const supervisorsData = await supervisorsResponse.json();
+        const classroomsData = await classroomsResponse.json();
+
+        setSupervisors(supervisorsData);
+        setAllClassrooms(classroomsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const formatRollNumber = (level, divisionName, roll) => {
     const paddedRoll = roll.toString().padStart(2, '0');
     return `${level}${divisionName}${paddedRoll}`;
   };
 
-  // Progress calculation
   const getProgressPercentage = () => {
     if (currentStep === 1) {
       const classroomProgress = classroomCount > 0 ? 25 : 0;
-      const detailsProgress = classrooms.every(room => room.name && room.benches) ? 25 : 0;
+      const detailsProgress = classrooms.every(room => room.name && room.benches && room.supervisor) ? 25 : 0;
       return classroomProgress + detailsProgress;
     } else {
       const divisionsSet = Object.values(divisionCounts).some(count => count > 0) ? 25 : 0;
@@ -53,13 +78,13 @@ const Seating = () => {
     }
   };
 
-  // Classroom handlers
   const handleClassroomCountChange = (e) => {
     const count = parseInt(e.target.value, 10) || 0;
     setClassroomCount(count);
     const newClassrooms = Array.from({ length: count }, (_, i) => ({
-      name: `Classroom ${i + 1}`,
+      name: '',
       benches: '',
+      supervisor: '',
     }));
     setClassrooms(newClassrooms);
   };
@@ -70,7 +95,6 @@ const Seating = () => {
     setClassrooms(updated);
   };
 
-  // Student data handlers
   const handleDivisionCountChange = (level, value) => {
     const count = parseInt(value, 10) || 0;
     setDivisionCounts((prev) => ({ ...prev, [level]: count }));
@@ -92,7 +116,6 @@ const Seating = () => {
     setStudentData((prev) => ({ ...prev, [level]: { ...prev[level], subject: value } }));
   };
 
-  // Utility functions
   const getTotalBenches = () =>
     classrooms.reduce((sum, room) => sum + parseInt(room.benches || 0, 10), 0);
 
@@ -110,9 +133,8 @@ const Seating = () => {
     return total;
   };
 
-  // Validation
   const canProceedToStep2 = () => {
-    return classroomCount > 0 && classrooms.every(room => room.name.trim() && room.benches) && examDate && examTimeFrom && examTimeTo;
+    return classroomCount > 0 && classrooms.every(room => room.name && room.benches && room.supervisor) && examDate && examTimeFrom && examTimeTo;
   };
 
   const canGeneratePDF = () => {
@@ -120,48 +142,180 @@ const Seating = () => {
     const allFieldsFilled = Object.entries(studentData).every(([level, data]) => {
       return data.subject.trim() && data.divisions.every(div => div.name.trim() && div.start && div.end);
     });
-    return hasStudents && allFieldsFilled && getTotalStudents() <= getTotalBenches();
+    return hasStudents && allFieldsFilled && getTotalStudents() <= getTotalBenches() * (seatingMode === "one" ? 1 : 2);
   };
 
-  // Assign students to benches
   const assignStudentsToBenches = () => {
     try {
       const totalBenches = getTotalBenches();
       const totalStudents = getTotalStudents();
-      if (totalStudents > totalBenches) {
-        alert("Total students exceed available benches!");
+      if (totalStudents > totalBenches * (seatingMode === "one" ? 1 : 2)) {
+        alert(`Total students exceed available benches for ${seatingMode === "one" ? "one" : "two"} student(s) per bench!`);
         return [];
       }
-
       let arrangement = [];
       let currentBench = 1;
       let currentClassroomIndex = 0;
-
+      let allStudents = [];
       Object.entries(studentData).forEach(([level, data]) => {
         data.divisions.forEach((div) => {
           const start = parseInt(div.start, 10);
           const end = parseInt(div.end, 10);
           for (let roll = start; roll <= end; roll++) {
-            const classroom = classrooms[currentClassroomIndex];
             const rollInDivision = roll - start + 1;
             const formattedRoll = formatRollNumber(level, div.name, rollInDivision);
-            arrangement.push({
+            allStudents.push({
               year: level,
               rollNumber: formattedRoll,
               division: div.name,
               subject: data.subject,
-              classroom: classroom.name,
-              bench: currentBench,
             });
-            currentBench++;
-            if (currentBench > parseInt(classroom.benches, 10)) {
-              currentBench = 1;
-              currentClassroomIndex++;
-            }
           }
         });
       });
-
+      if (seatingMode === "one") {
+        allStudents.forEach((student) => {
+          const classroom = classrooms[currentClassroomIndex];
+          arrangement.push({
+            year: student.year,
+            rollNumber: student.rollNumber,
+            division: student.division,
+            subject: student.subject,
+            classroom: classroom.name,
+            supervisor: classroom.supervisor,
+            bench: currentBench,
+          });
+          currentBench++;
+          if (currentBench > parseInt(classroom.benches, 10)) {
+            currentBench = 1;
+            currentClassroomIndex++;
+          }
+        });
+      } else {
+        const seStudents = [...allStudents.filter(s => s.year === "SE")];
+        const teStudents = [...allStudents.filter(s => s.year === "TE")];
+        const beStudents = [...allStudents.filter(s => s.year === "BE")];
+        let pairedArrangement = [];
+        let currentBench = 1;
+        let currentClassroomIndex = 0;
+        const findPartner = (student, availableStudents) => {
+          return availableStudents.find(s =>
+            s.year !== student.year || (s.year === student.year && s.division !== student.division)
+          );
+        };
+        while (seStudents.length > 0) {
+          const classroom = classrooms[currentClassroomIndex];
+          const student1 = seStudents.shift();
+          let student2 = findPartner(student1, [...teStudents, ...beStudents]);
+          if (!student2 && (teStudents.length > 0 || beStudents.length > 0)) {
+            student2 = teStudents.length > 0 ? teStudents.shift() : beStudents.shift();
+          }
+          pairedArrangement.push({
+            year: student1.year,
+            rollNumber: student1.rollNumber,
+            division: student1.division,
+            subject: student1.subject,
+            classroom: classroom.name,
+            supervisor: classroom.supervisor,
+            bench: currentBench,
+            partner: student2 ? {
+              year: student2.year,
+              rollNumber: student2.rollNumber,
+              division: student2.division,
+              subject: student2.subject,
+            } : null,
+          });
+          if (student2) {
+            if (student2.year === "TE") {
+              const index = teStudents.findIndex(s => s.rollNumber === student2.rollNumber);
+              if (index !== -1) teStudents.splice(index, 1);
+            } else if (student2.year === "BE") {
+              const index = beStudents.findIndex(s => s.rollNumber === student2.rollNumber);
+              if (index !== -1) beStudents.splice(index, 1);
+            }
+          }
+          currentBench++;
+          if (currentBench > parseInt(classroom.benches, 10)) {
+            currentBench = 1;
+            currentClassroomIndex++;
+          }
+        }
+        while (teStudents.length > 0) {
+          const classroom = classrooms[currentClassroomIndex];
+          const student1 = teStudents.shift();
+          let student2 = findPartner(student1, [...seStudents, ...beStudents]);
+          if (!student2 && (seStudents.length > 0 || beStudents.length > 0)) {
+            student2 = seStudents.length > 0 ? seStudents.shift() : beStudents.shift();
+          }
+          pairedArrangement.push({
+            year: student1.year,
+            rollNumber: student1.rollNumber,
+            division: student1.division,
+            subject: student1.subject,
+            classroom: classroom.name,
+            supervisor: classroom.supervisor,
+            bench: currentBench,
+            partner: student2 ? {
+              year: student2.year,
+              rollNumber: student2.rollNumber,
+              division: student2.division,
+              subject: student2.subject,
+            } : null,
+          });
+          if (student2) {
+            if (student2.year === "SE") {
+              const index = seStudents.findIndex(s => s.rollNumber === student2.rollNumber);
+              if (index !== -1) seStudents.splice(index, 1);
+            } else if (student2.year === "BE") {
+              const index = beStudents.findIndex(s => s.rollNumber === student2.rollNumber);
+              if (index !== -1) beStudents.splice(index, 1);
+            }
+          }
+          currentBench++;
+          if (currentBench > parseInt(classroom.benches, 10)) {
+            currentBench = 1;
+            currentClassroomIndex++;
+          }
+        }
+        while (beStudents.length > 0) {
+          const classroom = classrooms[currentClassroomIndex];
+          const student1 = beStudents.shift();
+          let student2 = findPartner(student1, [...seStudents, ...teStudents]);
+          if (!student2 && (seStudents.length > 0 || teStudents.length > 0)) {
+            student2 = seStudents.length > 0 ? seStudents.shift() : teStudents.shift();
+          }
+          pairedArrangement.push({
+            year: student1.year,
+            rollNumber: student1.rollNumber,
+            division: student1.division,
+            subject: student1.subject,
+            classroom: classroom.name,
+            supervisor: classroom.supervisor,
+            bench: currentBench,
+            partner: student2 ? {
+              year: student2.year,
+              rollNumber: student2.rollNumber,
+              division: student2.division,
+              subject: student2.subject,
+            } : null,
+          });
+          if (student2) {
+            if (student2.year === "SE") {
+              const index = seStudents.findIndex(s => s.rollNumber === student2.rollNumber);
+              if (index !== -1) seStudents.splice(index, 1);
+            } else if (student2.year === "TE") {
+              const index = teStudents.findIndex(s => s.rollNumber === student2.rollNumber);
+              if (index !== -1) teStudents.splice(index, 1);
+            }
+          }
+          currentBench++;
+          if (currentBench > parseInt(classroom.benches, 10)) {
+            currentBench = 1;
+            currentClassroomIndex++;
+          }
+        }
+        arrangement = pairedArrangement;
+      }
       setSeatingArrangement(arrangement);
       return arrangement;
     } catch (error) {
@@ -171,7 +325,78 @@ const Seating = () => {
     }
   };
 
-  // Generate PDF
+  const buildBlockSummaryRows = (arrangement) => {
+    const blockSummaryMap = {};
+    arrangement.forEach(item => {
+      const key = `${item.year}-${item.division}`;
+      if (!blockSummaryMap[key]) {
+        blockSummaryMap[key] = {
+          year: item.year,
+          division: item.division,
+          rollNumbers: [],
+          rooms: {}
+        };
+      }
+      blockSummaryMap[key].rollNumbers.push(item.rollNumber);
+      if (!blockSummaryMap[key].rooms[item.classroom]) {
+        blockSummaryMap[key].rooms[item.classroom] = {
+          supervisor: item.supervisor,
+          rollNumbers: []
+        };
+      }
+      blockSummaryMap[key].rooms[item.classroom].rollNumbers.push(item.rollNumber);
+      if (seatingMode === "two" && item.partner) {
+        const partnerKey = `${item.partner.year}-${item.partner.division}`;
+        if (!blockSummaryMap[partnerKey]) {
+          blockSummaryMap[partnerKey] = {
+            year: item.partner.year,
+            division: item.partner.division,
+            rollNumbers: [],
+            rooms: {}
+          };
+        }
+        blockSummaryMap[partnerKey].rollNumbers.push(item.partner.rollNumber);
+        if (!blockSummaryMap[partnerKey].rooms[item.classroom]) {
+          blockSummaryMap[partnerKey].rooms[item.classroom] = {
+            supervisor: item.supervisor,
+            rollNumbers: []
+          };
+        }
+        blockSummaryMap[partnerKey].rooms[item.classroom].rollNumbers.push(item.partner.rollNumber);
+      }
+    });
+    const blockSummary = [];
+    let blockNumber = 1;
+    for (const key in blockSummaryMap) {
+      const { year, division, rooms } = blockSummaryMap[key];
+      for (const room in rooms) {
+        const { supervisor, rollNumbers } = rooms[room];
+        rollNumbers.sort((a, b) => {
+          const aNum = parseInt(a.match(/\d+$/)[0], 10);
+          const bNum = parseInt(b.match(/\d+$/)[0], 10);
+          return aNum - bNum;
+        });
+        if (rollNumbers.length > 0) {
+          const start = rollNumbers[0];
+          const end = rollNumbers[rollNumbers.length - 1];
+          const specialization = `${year}${division}`;
+          blockSummary.push([
+            blockNumber++,
+            room,
+            supervisor,
+            specialization,
+            `${start} to ${end}`,
+          ]);
+        }
+      }
+    }
+    blockSummary.sort((a, b) => {
+      if (a[3] === b[3]) return a[1].localeCompare(b[1]);
+      return a[3].localeCompare(b[3]);
+    });
+    return blockSummary;
+  };
+
   const generatePDF = () => {
     try {
       const arrangement = assignStudentsToBenches();
@@ -179,95 +404,44 @@ const Seating = () => {
         alert("No valid seating arrangement generated. Check your inputs.");
         return;
       }
-
       const doc = new jsPDF();
-
-      // Header
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text("Pimpri Chinchwad Education Trust's", 105, 10, { align: "center" });
-      doc.text("Pimpri Chinchwad College of Engineering & Research, Ravet, Pune", 105, 17, { align: "center" });
+      const addHeader = (classroomName = '') => {
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.5);
+        doc.rect(10, 5, 190, 35);
+        doc.setFontSize(10);
+        doc.addImage(pccoerLogoLeft, 'PNG', 15, 10, 25, 20);
+        doc.addImage(pccoerLogoRight, 'PNG', 170, 10, 25, 20);
+        doc.setFont("helvetica", "bold");
+        doc.text("Pimpri Chinchwad Education Trust's", 105, 15, { align: "center" });
+        doc.text("Pimpri Chinchwad College of Engineering & Research, Ravet, Pune", 105, 20, { align: "center" });
+        doc.text("IQAC PCCOER", 105, 25, { align: "center" });
+        doc.setFontSize(9);
+        doc.text(`Academic Year: 2025-26`, 20, 35);
+        doc.text(`Term I`, 105, 35, { align: "center" });
+        doc.text(`PIXEL CRAFT - PCCOER`, 180, 35, { align: "right" });
+        if (classroomName) {
+          doc.setFontSize(12);
+          doc.text(`Seating Arrangement for ${classroomName}`, 105, 45, { align: "center" });
+        }
+      };
+      addHeader();
       doc.setFontSize(11);
       doc.setFont("helvetica", "normal");
-      doc.text(`Academic Year: 2025-26 Term - I`, 14, 27);
-      doc.text(`Examination: SPPU In-Sem 2025-26`, 14, 34);
-      doc.text(`Date: ${examDate}   Time: ${examTimeFrom} - ${examTimeTo}`, 14, 41);
-
-      // Years with students
+      doc.text(`Examination: SPPU In-Sem 2025-26`, 14, 50);
+      doc.text(`Date: ${examDate}   Time: ${examTimeFrom} - ${examTimeTo}`, 14, 57);
       const yearsWithStudents = Object.keys(studentData).filter(
         (level) => studentData[level].divisions.length > 0
       );
-      doc.text(`Years: ${yearsWithStudents.join(", ")}`, 14, 48);
-
-      // Block Summary Table
+      doc.text(`Years: ${yearsWithStudents.join(", ")}`, 14, 64);
       doc.setFont("helvetica", "bold");
-      doc.text("Block Summary", 14, 57);
-
-      // Prepare block summary data
-      const blockSummary = [];
-      let blockNumber = 1;
-      let currentBlockClassroom = null;
-      let currentBlockStart = null;
-      let currentBlockEnd = null;
-      let currentBlockTotal = 0;
-      let divisionRolls = {};
-
-      arrangement.forEach((item, index) => {
-        if (index === 0) {
-          currentBlockClassroom = item.classroom;
-          currentBlockStart = item.rollNumber;
-          currentBlockEnd = item.rollNumber;
-          currentBlockTotal = 1;
-          divisionRolls[item.division] = { start: item.rollNumber, end: item.rollNumber };
-        } else {
-          if (item.classroom === currentBlockClassroom) {
-            currentBlockEnd = item.rollNumber;
-            currentBlockTotal++;
-
-            if (!divisionRolls[item.division]) {
-              divisionRolls[item.division] = { start: item.rollNumber, end: item.rollNumber };
-            } else {
-              divisionRolls[item.division].end = item.rollNumber;
-            }
-          } else {
-            const divisionRows = Object.entries(divisionRolls).map(([division, rolls]) => [
-              blockNumber,
-              currentBlockClassroom,
-              division,
-              rolls.start,
-              rolls.end,
-              rolls.end.split(division)[1] - rolls.start.split(division)[1] + 1,
-            ]);
-
-            blockSummary.push(...divisionRows);
-
-            blockNumber++;
-            currentBlockClassroom = item.classroom;
-            currentBlockStart = item.rollNumber;
-            currentBlockEnd = item.rollNumber;
-            currentBlockTotal = 1;
-            divisionRolls = { [item.division]: { start: item.rollNumber, end: item.rollNumber } };
-          }
-        }
-
-        if (index === arrangement.length - 1) {
-          const divisionRows = Object.entries(divisionRolls).map(([division, rolls]) => [
-            blockNumber,
-            currentBlockClassroom,
-            division,
-            rolls.start,
-            rolls.end,
-            rolls.end.split(division)[1] - rolls.start.split(division)[1] + 1,
-          ]);
-
-          blockSummary.push(...divisionRows);
-        }
-      });
-
+      doc.text("Block Summary", 14, 71);
+      const blockSummary = buildBlockSummaryRows(arrangement);
+      const tableHeaders = [["Block Number", "Room", "Supervisor", "Specialization", "Roll No. Range"]];
       autoTable(doc, {
-        head: [["Block Number", "Classroom", "Division", "Roll No. From", "Roll No. To", "Total"]],
+        head: tableHeaders,
         body: blockSummary,
-        startY: 60,
+        startY: 75,
         styles: {
           fontSize: 9,
           halign: 'center',
@@ -285,36 +459,42 @@ const Seating = () => {
           lineWidth: 0.1,
         },
       });
-
-      // Footer on the first page
       const firstPageFooterY = doc.lastAutoTable.finalY + 10;
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");
       doc.text(`Prepared by: Exam Cell`, 14, firstPageFooterY);
       doc.text(`Total Students: ${getTotalStudents()}`, 160, firstPageFooterY, { align: "right" });
-
-      // Seating Arrangement by Classroom (each classroom on a new page)
       classrooms.forEach((classroom) => {
         doc.addPage();
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.text(`Seating Arrangement for ${classroom.name}`, 105, 20, { align: "center" });
-        doc.setFontSize(10);
-        doc.text(`Total Benches: ${classroom.benches}`, 105, 30, { align: "center" });
-
+        addHeader(classroom.name);
         const classroomArrangement = arrangement.filter(item => item.classroom === classroom.name);
-        const seatingData = classroomArrangement.map(item => [
-          item.year,
-          item.rollNumber,
-          item.division,
-          item.subject,
-          item.bench,
-        ]);
-
+        const seatingData = classroomArrangement.map(item => {
+          if (seatingMode === "one") {
+            return [
+              item.year,
+              item.rollNumber,
+              item.division,
+              item.subject,
+              item.bench,
+            ];
+          } else {
+            return [
+              item.year,
+              item.rollNumber,
+              item.division,
+              item.subject,
+              item.bench,
+              item.partner ? item.partner.rollNumber : "-",
+              item.partner ? item.partner.division : "-",
+            ];
+          }
+        });
         autoTable(doc, {
-          head: [["Year", "Roll Number", "Division", "Subject", "Bench"]],
+          head: seatingMode === "one"
+            ? [["Year", "Roll Number", "Division", "Subject", "Bench"]]
+            : [["Year", "Roll Number", "Division", "Subject", "Bench", "Partner", "Partner's Division"]],
           body: seatingData,
-          startY: 40,
+          startY: 55,
           styles: {
             fontSize: 8,
             halign: 'center',
@@ -332,9 +512,15 @@ const Seating = () => {
             lineWidth: 0.1,
           },
         });
+        const classroomStudents = seatingMode === "one"
+          ? classroomArrangement.length
+          : classroomArrangement.reduce((acc, itm) => acc + 1 + (itm.partner ? 1 : 0), 0);
+        const lastTableY = doc.lastAutoTable.finalY;
+        doc.setFontSize(10);
+        doc.text(`Supervisor: ${classroom.supervisor || 'N/A'}`, 14, lastTableY + 10);
+        doc.text(`Total Benches: ${classroom.benches}`, 14, lastTableY + 17);
+        doc.text(`Total Students: ${classroomStudents}`, 14, lastTableY + 24);
       });
-
-      // Save the PDF
       doc.save("Exam_Seating_Arrangement.pdf");
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -342,7 +528,6 @@ const Seating = () => {
     }
   };
 
-  // Render
   const totalBenches = getTotalBenches();
   const totalStudents = getTotalStudents();
   const progressPercentage = getProgressPercentage();
@@ -350,7 +535,6 @@ const Seating = () => {
   return (
     <div className={styles.container}>
       <div className={styles.printHidden}>
-        {/* Header */}
         <div className={styles.header}>
           <h1 className={styles.title}>
             <FileText className={styles.titleIcon} />
@@ -358,8 +542,6 @@ const Seating = () => {
           </h1>
           <p className={styles.subtitle}>Create organized seating arrangements for your examinations</p>
         </div>
-
-        {/* Progress Bar */}
         <div className={styles.progressContainer}>
           <div className={styles.progressHeader}>
             <h3 className={styles.progressTitle}>Setup Progress</h3>
@@ -376,8 +558,6 @@ const Seating = () => {
             <span className={currentStep === 2 ? styles.activeStep : ''}>Step 2: Student Data</span>
           </div>
         </div>
-
-        {/* Step Indicator */}
         <div className={styles.stepIndicator}>
           <div className={`${styles.stepIcon} ${currentStep >= 1 ? styles.activeStepIcon : ''}`}>
             <MapPin size={20} />
@@ -387,8 +567,6 @@ const Seating = () => {
             <Users size={20} />
           </div>
         </div>
-
-        {/* Step Content */}
         <div className={styles.content}>
           {currentStep === 1 ? (
             <div>
@@ -444,20 +622,39 @@ const Seating = () => {
                   min="1"
                 />
               </div>
-
               {classrooms.map((room, index) => (
                 <div key={index} className={styles.classroomCard}>
                   <h4 className={styles.classroomTitle}>Classroom {index + 1}</h4>
                   <div className={styles.classroomGrid}>
                     <div>
                       <label className={styles.label}>Classroom Name</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., Room A-101"
+                      <select
                         value={room.name}
                         onChange={(e) => handleClassroomChange(index, 'name', e.target.value)}
                         className={styles.input}
-                      />
+                      >
+                        <option value="">Select Classroom</option>
+                        {allClassrooms.map((classroom) => (
+                          <option key={classroom.id} value={classroom.name}>
+                            {classroom.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={styles.label}>Supervisor</label>
+                      <select
+                        value={room.supervisor}
+                        onChange={(e) => handleClassroomChange(index, 'supervisor', e.target.value)}
+                        className={styles.input}
+                      >
+                        <option value="">Select Supervisor</option>
+                        {supervisors.map((supervisor) => (
+                          <option key={supervisor.id} value={supervisor.name}>
+                            {supervisor.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className={styles.label}>Number of Benches</label>
@@ -473,7 +670,6 @@ const Seating = () => {
                   </div>
                 </div>
               ))}
-
               {classroomCount > 0 && (
                 <div className={styles.summaryCard}>
                   <div className={styles.summaryIcon}>
@@ -491,7 +687,23 @@ const Seating = () => {
                 <Users className={styles.stepTitleIcon} />
                 Step 2: Student Information
               </h2>
-
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Seating Mode</label>
+                <div className={styles.toggleContainer}>
+                  <button
+                    className={`${styles.toggleButton} ${seatingMode === "one" ? styles.activeToggle : ""}`}
+                    onClick={() => setSeatingMode("one")}
+                  >
+                    One Student per Bench
+                  </button>
+                  <button
+                    className={`${styles.toggleButton} ${seatingMode === "two" ? styles.activeToggle : ""}`}
+                    onClick={() => setSeatingMode("two")}
+                  >
+                    Two Students per Bench
+                  </button>
+                </div>
+              </div>
               {['SE', 'TE', 'BE'].map((level) => (
                 <div key={level} className={styles.divisionSection}>
                   <h3 className={styles.divisionTitle}>{level} Divisions</h3>
@@ -518,7 +730,6 @@ const Seating = () => {
                       min="0"
                     />
                   </div>
-
                   {studentData[level].divisions.map((div, index) => (
                     <div key={index} className={styles.divisionCard}>
                       <h5 className={styles.divisionCardTitle}>{level} Division {index + 1}</h5>
@@ -551,22 +762,21 @@ const Seating = () => {
                   ))}
                 </div>
               ))}
-
               {totalStudents > 0 && (
-                <div className={`${styles.summaryCard} ${totalStudents > totalBenches ? styles.errorCard : styles.successCard}`}>
+                <div className={`${styles.summaryCard} ${totalStudents > totalBenches * (seatingMode === "one" ? 1 : 2) ? styles.errorCard : styles.successCard}`}>
                   <div className={styles.summaryIcon}>
-                    {totalStudents > totalBenches ? (
+                    {totalStudents > totalBenches * (seatingMode === "one" ? 1 : 2) ? (
                       <AlertTriangle className={styles.errorIcon} size={20} />
                     ) : (
                       <Users className={styles.successIcon} size={20} />
                     )}
                   </div>
                   <p className={styles.summaryText}>
-                    Total Students: <span className={styles.summaryNumber}>{totalStudents}</span> / {totalBenches} Benches
+                    Total Students: <span className={styles.summaryNumber}>{totalStudents}</span> / {totalBenches * (seatingMode === "one" ? 1 : 2)} Benches
                   </p>
-                  {totalStudents > totalBenches && (
+                  {totalStudents > totalBenches * (seatingMode === "one" ? 1 : 2) && (
                     <p className={styles.errorText}>
-                      ⚠️ Total students exceed available benches! Please add more classrooms or reduce student count.
+                      ⚠️ Total students exceed available benches for {seatingMode === "one" ? "one" : "two"} student(s) per bench! Please add more classrooms or reduce student count.
                     </p>
                   )}
                 </div>
@@ -574,8 +784,6 @@ const Seating = () => {
             </div>
           )}
         </div>
-
-        {/* Navigation Buttons */}
         <div className={styles.navigation}>
           <button
             onClick={() => setCurrentStep(1)}
@@ -605,52 +813,6 @@ const Seating = () => {
                 Generate PDF
               </button>
             )}
-          </div>
-        </div>
-
-        {/* Print Preview */}
-        <div className={styles.printOnly}>
-          <h1 className={styles.printTitle}>Exam Seating Arrangement</h1>
-          <div className={styles.printSection}>
-            <h2 className={styles.printSectionTitle}>Classroom Details</h2>
-            <div className={styles.printGrid}>
-              {classrooms.map((room, i) => (
-                <div key={i} className={styles.printCard}>
-                  <div className={styles.printCardTitle}>{room.name}</div>
-                  <div className={styles.printCardText}>Benches: {room.benches}</div>
-                </div>
-              ))}
-            </div>
-            <div className={styles.printSummaryCard}>
-              <div className={styles.printSummaryText}>
-                Total Benches: {totalBenches}
-              </div>
-            </div>
-          </div>
-          <div>
-            <h2 className={styles.printSectionTitle}>Student Distribution</h2>
-            {['SE', 'TE', 'BE'].map((level) => (
-              <div key={level} className={styles.printDivisionSection}>
-                <h3 className={styles.printDivisionTitle}>{level} Students:</h3>
-                <div className={styles.printSubjectText}>Subject: {studentData[level].subject}</div>
-                <div className={styles.printGrid}>
-                  {studentData[level].divisions.map((div, i) => (
-                    <div key={i} className={styles.printDivisionCard}>
-                      <div className={styles.printDivisionCardTitle}>{div.name}</div>
-                      <div className={styles.printDivisionCardText}>Roll No.: {div.start} - {div.end}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-            <div className={styles.printSummaryCard}>
-              <div className={styles.printSummaryText}>
-                Total Students: {totalStudents}
-              </div>
-            </div>
-          </div>
-          <div className={styles.printFooter}>
-            Generated on: {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
           </div>
         </div>
       </div>
